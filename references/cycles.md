@@ -50,16 +50,26 @@ Rediscover requirements on request. Do not demote COMPLETED without evidence of 
 
 ## Model routing
 
-incremental → sonnet. bootstrap / deep / release → opus. Honor `config.yaml`.
+**One model — `sonnet`. What escalation changes is the effort, not the model**
+([ADR-0012](../docs/adr/0012-escalonamento-por-esforco.md)). Honor `config.yaml`.
+
+| Cycle | Effort |
+|---|---|
+| incremental review (every burst) | `medium` |
+| `bootstrap` | `xhigh` |
+| `deep`, `release` | `high` |
 
 The principle is cost against frequency and reversibility: what runs on every
-burst uses the cheap model; what is read once and hard to undo uses the
-expensive one.
+burst gets the small budget; what is read once and hard to undo gets the large
+one. `bootstrap` sits alone at the top because it writes the entire requirement
+map and the baseline — the number everyone reads afterwards.
 
 The **routine** half of that is imposed, not suggested: `SKILL.md` frontmatter
 pins `model: sonnet` and `effort: medium`, and `scripts/check-docs.sh` fails if
-it stops matching `config.yaml` → `analysis.model`
-([ADR-0011](../docs/adr/0011-modelo-e-esforco-no-frontmatter.md)).
+either stops matching `config.yaml`, or if any `escalate` value is not a valid
+effort level — a model name there is a failure
+([ADR-0011](../docs/adr/0011-modelo-e-esforco-no-frontmatter.md) §2,
+[ADR-0012](../docs/adr/0012-escalonamento-por-esforco.md) §5).
 
 `config.yaml` → `analysis.escalate` also names two risk conditions, and they
 are conditions, not decoration:
@@ -69,12 +79,15 @@ are conditions, not decoration:
 | `low_confidence` | the burst produces requirements with `confidence` below 60, or `evidence.knownness: unknown` on a COMPLETED claim |
 | `major_divergence` | the diff contradicts the declared requirement, or more than 5 reqs are declared in one commit |
 
+Both escalate to `high`.
+
 **Escalation is a hand-off, not an automatic switch.** A skill cannot change its
-own model mid-run. So on `bootstrap` / `deep` / `release`, or on either condition
-above: **stop, name the condition and the requirement, and ask the operator to
-re-run under the escalated model.** Then redo that requirement's validation —
-not the whole burst — under the new model.
+own effort mid-run. So on `bootstrap` / `deep` / `release`, or on either
+condition above: **stop, name the condition and the requirement, and ask the
+operator to re-run at the escalated effort.** Then redo that requirement's
+validation — not the whole burst — at the new effort.
 
 Never write status from an escalation condition while still running at the
-routine model. Record the model that actually ran in `analysis/latest.yaml` →
-`model`; it is an observation, never a copy of `config.yaml`.
+routine effort. Record the model and effort that actually ran in
+`analysis/latest.yaml` → `model` / `effort`; they are observations, never copies
+of `config.yaml`.

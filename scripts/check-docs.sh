@@ -66,11 +66,40 @@ else
   ok "model = $skill_model no frontmatter e no config.yaml"
 fi
 
+cfg_effort=$(sed -n 's/^  effort: *//p' assets/templates/config.yaml | head -1)
+
 case "$skill_effort" in
   low|medium|high|xhigh|max) ok "effort = $skill_effort" ;;
   "")  bad "SKILL.md não declara 'effort' no frontmatter (ADR-0011)" ;;
   *)   bad "SKILL.md effort='$skill_effort' não é low|medium|high|xhigh|max" ;;
 esac
+
+if [[ "$cfg_effort" != "$skill_effort" ]]; then
+  bad "SKILL.md effort='$skill_effort' × config.yaml analysis.effort='$cfg_effort' — têm de ser o mesmo (ADR-0011 §2)"
+else
+  ok "effort = $cfg_effort no frontmatter e no config.yaml"
+fi
+
+# ADR-0012: `escalate` declara NÍVEL DE ESFORÇO, nunca nome de modelo. Sem esta
+# perna o ADR vira comentário em YAML — a mesma porta que o ADR-0011 fechou.
+esc_bad=""; esc_n=0
+while IFS= read -r linha; do
+  chave=${linha%%:*}; valor=${linha#*: }
+  esc_n=$((esc_n + 1))
+  case "$valor" in
+    low|medium|high|xhigh|max) ;;
+    *) esc_bad="$esc_bad ${chave}=${valor}" ;;
+  esac
+done < <(awk '/^  escalate:/{f=1;next} f && /^    [a-z_]+:/{sub(/^    /,"");print;next} f && !/^    /{f=0}' \
+           assets/templates/config.yaml)
+
+if (( esc_n == 0 )); then
+  bad "assets/templates/config.yaml não declara analysis.escalate (ADR-0012)"
+elif [[ -n "$esc_bad" ]]; then
+  bad "escalate com valor que não é nível de esforço:$esc_bad — use low|medium|high|xhigh|max, nunca nome de modelo (ADR-0012)"
+else
+  ok "escalate: $esc_n condição(ões), todas em nível de esforço válido"
+fi
 
 # --------------------------------------------- licença declarada × arquivo
 head_ "Licença"

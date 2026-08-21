@@ -3,7 +3,7 @@
 **Evidence-based progress intelligence for projects built with AI agents.**
 
 Skill: `skill-dashproject`  
-Version: 0.4.1 (Three Outputs, One Snapshot)
+Version: 0.4.2 (Three Outputs, One Snapshot)
 
 🇧🇷 [Leia em português](README_br.md)
 
@@ -247,7 +247,7 @@ Commands:
 | `dashproject activity` | Git snapshot of files/churn only |
 | `dashproject status` | Progress, precision, pulse, scope, delta |
 
-Default model: Sonnet for the incremental. Opus (or whatever is in `config.yaml`) for bootstrap / deep / release. The provider is configurable (`anthropic`, `ollama`, …).
+**One model — Sonnet. Escalation raises the effort, not the model** ([ADR-0012](docs/adr/0012-escalonamento-por-esforco.md)). `SKILL.md` frontmatter pins `model: sonnet` + `effort: medium` for the routine incremental; `bootstrap` escalates to `xhigh`, `deep` / `release` to `high`. Escalation is a **hand-off**: the auditor stops and asks you to re-run at that effort — it never switches silently. The provider is configurable (`anthropic`, `ollama`, …).
 
 ---
 
@@ -354,7 +354,7 @@ In the target repository the auditor creates:
 | v0.1 | delivered | Bootstrap, 0/50/100, debounce, REQ commits, dashboard, snapshots, precision |
 | v0.2 | delivered | *Reliable Requirement Tracking* — conservative bootstrap, completion declared/accepted/rejected, derived progress, composite hook, watch, Git activity |
 | v0.3 | delivered | *Documented Foundations* — documentation standard, ADRs 0001–0009, schema contracts (evidence, delta, divergences, dashboard projection), subject default on commit |
-| **v0.4** | **current** | *Three Outputs, One Snapshot* — `render-reports.py`, house versioning (`version.md`), bilingual README, free subject + `Requirements:` block |
+| **v0.4** | **current** | *Three Outputs, One Snapshot* — `render-reports.py`, house versioning (`version.md`), bilingual README, free subject + `Requirements:` block, model and effort pinned in the frontmatter |
 | v0.5 | planned | Explicit regression, commit-derived timeline, richer rejections, historical burn-up |
 | v0.6 | planned | Spec/doc drift, dependencies between requirements |
 | v0.7 | planned | Release readiness and risk. Quality and security **as a separate axis — never as a percentage dimension** ([ADR-0007](docs/adr/0007-um-numero-e-tres-estados.md)) |

@@ -167,7 +167,7 @@ def latest_md(d: dict) -> str:
 
 - generated: {d.get("generated") or ""}
 - level: {d.get("level") or ""}
-- model: {d.get("model") or ""}
+- model: {d.get("model") or ""}{" · effort: " + str(d.get("effort")) if d.get("effort") else ""}
 - base: `{d.get("base") or "—"}`
 - head: `{d.get("head") or "—"}`
 - progress: {pct(d.get("progress"))} ({dlt.get("progress", 0):+.1f})

@@ -150,7 +150,7 @@
     $("meta").innerHTML = [
       "snapshot #" + (D.snapshot ?? "—"),
       D.level || "",
-      D.model || "",
+      [D.model, D.effort].filter(Boolean).join(" · "),
       D.head ? ("HEAD " + D.head) : "",
       D.generated || ""
     ].filter(Boolean).join("<br>");

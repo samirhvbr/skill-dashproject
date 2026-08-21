@@ -1,6 +1,6 @@
 # Versão — skill-DASHPROJECT
 
-**Versão atual:** `0.4.1`
+**Versão atual:** `0.4.2`
 
 > Este arquivo é a **fonte da verdade** da versão do projeto. Qualquer lugar que
 > precise exibir ou reportar a versão extrai o **primeiro número semver (`X.Y.Z`)**
@@ -81,6 +81,40 @@ O changelog deste repositório vive em **[CHANGELOG.md](CHANGELOG.md)**, no form
 continua saindo daqui, que é a fonte da verdade; as **entradas** ficam lá.
 
 Entrega corrente:
+
+### `0.4.2` — 2026-08-21 — o escalonamento muda o esforço, não o modelo
+
+Bump de **`Z`** (gatilhos: `SKILL.md`, regra em `references/**`, e
+`assets/templates/**`, que é copiado para dentro do projeto auditado).
+
+A `0.4.1` impôs o modelo rotineiro e deixou o **eixo** do escalonamento como
+estava desde a v0.1: `escalate` nomeava **outro modelo** (`opus`). Aquele desenho
+é de quando modelo era a única alavanca — "mais difícil" e "modelo maior" viravam
+a mesma frase. Hoje `effort` é eixo próprio.
+
+- **[ADR-0012](docs/adr/0012-escalonamento-por-esforco.md)** — um modelo só
+  (`sonnet`); `escalate` passa a declarar **nível de esforço**. `bootstrap` sobe
+  para `xhigh` (escreve o mapa inteiro e o baseline), `deep` / `release` /
+  `low_confidence` / `major_divergence` para `high`.
+- **`deep` entra no `escalate`** — o `cycles.md` dizia "bootstrap / deep /
+  release" e o schema só listava três dos quatro. A condição existia na prosa e
+  não no contrato.
+- **`check-docs.sh` reprova valor de `escalate` que não seja nível de esforço** —
+  inclusive nome de modelo — e passa a comparar `effort` entre o frontmatter e o
+  `config.yaml`. Provado por mutação: plantar `bootstrap: opus` derruba a
+  verificação (exit 1); restaurar devolve verde.
+- **`effort` ganha lugar no schema**: `analysis/latest.yaml`, o contrato de
+  projeção, o `data.json`, o `index.html` e o `render-reports.py` passam a
+  carregar o esforço que **de fato rodou**, ao lado do modelo — pela mesma razão
+  do ADR-0011 §4: declaração que nada observa não é controle.
+- Consertos de rastro da 0.4.0: `/dashproject-release` ainda mandava bumpar
+  `SKILL.md → metadata.version` (a fonte da verdade é o `version.md` desde a
+  0.4.0) e fechar com `chore(release):`, que o §2 proíbe; `.continue/config.yaml`
+  ainda declarava `0.3.0`.
+
+⛔ **Não medido:** se `sonnet`/`xhigh` classifica um bootstrap tão bem quanto
+`opus`/`medium`. Nenhum bootstrap real rodou — o do EOP está adiado por decisão.
+É escolha de desenho com o eixo certo, não resultado.
 
 ### `0.4.1` — 2026-08-21 — o modelo do auditor deixa de ser um comentário em YAML
 

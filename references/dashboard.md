@@ -12,7 +12,7 @@ dashboard.
 
 | Source | Provides |
 |---|---|
-| `analysis/latest.yaml` | progress, precision, scope, counts, delta, rejected_claims, regressions, base/head, level, model, snapshot |
+| `analysis/latest.yaml` | progress, precision, scope, counts, delta, rejected_claims, regressions, base/head, level, model, effort, snapshot |
 | `requirements/coverage.yaml` | precision factors, coverage counters, totals |
 | `activity/repository.json` | everything under `activity` (written by `collect-activity.py`, never by the model) |
 | `requirements/requirements.yaml` | epic rollup, timeline |
@@ -28,7 +28,8 @@ dashboard.
 | `snapshot` | `latest.yaml` → `snapshot` | integer, monotonic |
 | `base` / `head` | `latest.yaml` → `base` / `head` | short SHAs, `null` on bootstrap |
 | `level` | `latest.yaml` → `level` | `bootstrap` \| `incremental` \| `deep` |
-| `model` | `latest.yaml` → `model` | |
+| `model` | `latest.yaml` → `model` | observed, not declared |
+| `effort` | `latest.yaml` → `effort` | observed, not declared |
 | `progress` | `latest.yaml` → `progress` | **copied, never recomputed** |
 | `precision` | `coverage.yaml` → `precision.overall` | |
 | `precision_factors` | `coverage.yaml` → `precision.{clarity,granularity,traceability,documentation}` | flattened; the nesting differs on purpose — this row is the mapping |

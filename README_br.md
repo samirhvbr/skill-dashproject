@@ -3,7 +3,7 @@
 **Inteligência de progresso baseada em evidências para projetos desenvolvidos com agentes de IA.**
 
 Skill: `skill-dashproject`  
-Versão: 0.4.1 (Three Outputs, One Snapshot)
+Versão: 0.4.2 (Three Outputs, One Snapshot)
 
 🇬🇧 [Read in English](README.md) — o `README.md` em inglês é a porta de entrada do repositório.
 
@@ -255,7 +255,7 @@ Comandos:
 | `dashproject activity` | Só o snapshot Git de arquivos/churn |
 | `dashproject status` | Progresso, precision, pulse, escopo, delta |
 
-Modelo padrão: Sonnet no incremental. Opus (ou o que estiver em `config.yaml`) no bootstrap / deep / release. Provedor é configurável (`anthropic`, `ollama`, …).
+**Um modelo só — Sonnet. O que escalona é o esforço, não o modelo** ([ADR-0012](docs/adr/0012-escalonamento-por-esforco.md)). O frontmatter do `SKILL.md` fixa `model: sonnet` + `effort: medium` para o incremental rotineiro; `bootstrap` escalona para `xhigh`, `deep` / `release` para `high`. Escalonar é **hand-off**: o auditor para e pede que você rode de novo naquele esforço — nunca troca sozinho. Provedor é configurável (`anthropic`, `ollama`, …).
 
 ---
 
@@ -360,7 +360,7 @@ No repositório alvo o auditor cria:
 | v0.1 | entregue | Bootstrap, 0/50/100, debounce, commits com REQ, dashboard, snapshots, precision |
 | v0.2 | entregue | *Reliable Requirement Tracking* — bootstrap conservador, completion declared/accepted/rejected, progress derivado, hook composto, watch, atividade Git |
 | v0.3 | entregue | *Documented Foundations* — padrão de documentação, ADRs 0001–0009, contratos de schema (evidência, delta, divergências, projeção do dashboard), default de subject no commit |
-| **v0.4** | **atual** | *Three Outputs, One Snapshot* — `render-reports.py`, versionamento da casa (`version.md`), README bilíngue, subject livre + bloco `Requirements:` |
+| **v0.4** | **atual** | *Three Outputs, One Snapshot* — `render-reports.py`, versionamento da casa (`version.md`), README bilíngue, subject livre + bloco `Requirements:`, modelo e esforço fixados no frontmatter |
 | v0.5 | planejado | Regressão explícita, timeline derivada de commits, rejeições mais ricas, burn-up histórico |
 | v0.6 | planejado | Drift de spec/doc, dependências entre requisitos |
 | v0.7 | planejado | Release readiness e riscos. Qualidade e segurança **como eixo separado — nunca como dimensão de percentual** ([ADR-0007](docs/adr/0007-um-numero-e-tres-estados.md)) |

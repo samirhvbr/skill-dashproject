@@ -6,7 +6,7 @@ description: Evidence-based project progress auditor (DASHPROJECT). Use when the
 license: MIT
 metadata:
   product: DASHPROJECT
-  version: "0.4.1"
+  version: "0.4.2"
   type: auditor
 ---
 
@@ -124,21 +124,34 @@ Score 0–100 from four factors (see scoring): clarity, granularity, commit trac
 
 The frontmatter pins the **routine** path: `model: sonnet`, `effort: medium`.
 That is the incremental review after a commit burst — frequent, cheap, reversible.
-It matches `config.yaml` → `analysis.model` ([ADR-0011](docs/adr/0011-modelo-e-esforco-no-frontmatter.md)).
+Both match `config.yaml` → `analysis.model` / `analysis.effort`
+([ADR-0011](docs/adr/0011-modelo-e-esforco-no-frontmatter.md)).
 
-`analysis.escalate` is **not** self-executing. A skill cannot switch its own
-model mid-run, so escalation is a hand-off, never a silent continuation:
+**One model. Escalation raises the effort, never swaps the model**
+([ADR-0012](docs/adr/0012-escalonamento-por-esforco.md)). `analysis.escalate`
+holds effort levels — `low` | `medium` | `high` | `xhigh` | `max` — never a
+model name:
 
-- On `bootstrap`, `deep`, `release`, or a hit on `low_confidence` /
-  `major_divergence` (conditions in [references/cycles.md](references/cycles.md)),
-  **stop and tell the operator** to re-run under the escalated model.
-- Never write status from an escalation condition while running at the routine
-  model and call it escalated.
+| Cycle / condition | Effort |
+|---|---|
+| incremental review (every burst) | `medium` — the frontmatter default |
+| `bootstrap` | `xhigh` — writes the whole map and the baseline everyone reads |
+| `deep`, `release` | `high` |
+| `low_confidence`, `major_divergence` | `high` (conditions in [references/cycles.md](references/cycles.md)) |
 
-Write the model **actually running** into `analysis/latest.yaml` → `model` and
-`dashboard/data.json` → `model` — never copy the value from `config.yaml`. If it
-differs from `analysis.model`, say so in the report line. A declared model that
-nothing observes is not a control.
+`analysis.escalate` is **not** self-executing. A skill cannot change its own
+effort mid-run, so escalation is a hand-off, never a silent continuation:
+
+- On any row above other than the first, **stop, name the condition and the
+  requirement, and tell the operator** to re-run at that effort. Then redo only
+  that requirement's validation — not the whole burst.
+- Never write status from an escalation condition while still running at the
+  routine effort and call it escalated.
+
+Write the model and effort **actually running** into `analysis/latest.yaml` →
+`model` / `effort` and `dashboard/data.json` — never copy the values from
+`config.yaml`. If either differs from what `analysis` declares, say so in the
+report line. A declared model that nothing observes is not a control.
 
 ## Debounce and watch
 

@@ -4,6 +4,39 @@ Formato [Keep a Changelog](https://keepachangelog.com/pt-BR/1.1.0/).
 Versão canônica em [`version.md`](version.md) — `SKILL.md`, os dois READMEs e o
 nome do pacote derivam dela.
 
+## [0.4.2] — 2026-08-21
+
+A `0.4.1` impôs o modelo rotineiro e deixou o **eixo** do escalonamento como
+estava desde a v0.1: `escalate` nomeava outro **modelo**. Esta entrega troca o
+eixo — um modelo só, e o que escalona é o esforço.
+
+### Alterado
+
+- **`analysis.escalate` declara nível de esforço, nunca nome de modelo**
+  ([ADR-0012](docs/adr/0012-escalonamento-por-esforco.md)). `bootstrap` → `xhigh`;
+  `deep`, `release`, `low_confidence`, `major_divergence` → `high`. O modelo é
+  `sonnet` no caminho rotineiro e no escalado.
+- `analysis.effort: medium` entra no `config.yaml`, igual ao frontmatter.
+- `analysis/latest.yaml`, `dashboard/data.json`, `index.html` e
+  `render-reports.py` passam a carregar `effort` ao lado de `model` — o que de
+  fato rodou, nunca cópia do `config.yaml`.
+
+### Adicionado
+
+- `deep` no bloco `escalate`. O `references/cycles.md` dizia "bootstrap / deep /
+  release" e o schema listava três dos quatro.
+- Duas pernas novas no `scripts/check-docs.sh`: `effort` tem de bater entre
+  frontmatter e `config.yaml`, e todo valor de `escalate` tem de ser
+  `low|medium|high|xhigh|max`. Verificado por mutação — `bootstrap: opus`
+  derruba a verificação.
+
+### Corrigido
+
+- `/dashproject-release` mandava bumpar `SKILL.md → metadata.version` e fechar
+  com `chore(release):` — a fonte da verdade é o `version.md` desde a 0.4.0, e o
+  formato de commit da casa proíbe Conventional Commits.
+- `.continue/config.yaml` declarava `version: 0.3.0`.
+
 ## [0.4.1] — 2026-08-21
 
 O modelo do auditor deixa de ser um comentário em YAML.

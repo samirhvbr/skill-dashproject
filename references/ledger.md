@@ -100,7 +100,8 @@ precision:
 ```yaml
 snapshot: 22
 level: incremental
-model: sonnet
+model: sonnet              # the model that ACTUALLY ran, never a copy of config.yaml
+effort: medium             # likewise — see ADR-0011 §4 and ADR-0012
 base: abc123
 head: jkl012
 progress: 62.4

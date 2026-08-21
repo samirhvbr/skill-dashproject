@@ -1,13 +1,21 @@
 analysis:
   provider: anthropic
+  # Tem de ser o MESMO string do frontmatter de SKILL.md — check-docs.sh reprova
+  # divergencia (ADR-0011 §2).
   model: sonnet
+  effort: medium
   debounce_minutes: 10
   default_level: incremental
+  # Escalonamento por ESFORCO, nao por modelo (ADR-0012). Um modelo so; o que
+  # muda e o orcamento de raciocinio. Valores: low | medium | high | xhigh | max
+  # — nunca nome de modelo. Escalonar NAO e automatico: o auditor para e pede a
+  # troca ao operador (ADR-0011 §3).
   escalate:
-    bootstrap: opus
-    low_confidence: opus
-    release: opus
-    major_divergence: opus
+    bootstrap: xhigh
+    deep: high
+    release: high
+    low_confidence: high
+    major_divergence: high
   auto_commit: false
   poll_seconds: 30
 

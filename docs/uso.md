@@ -15,9 +15,9 @@ burst, nunca os 287 do ledger. É isso que mantém o custo em tokens previsível
 
 | Comando | Efeito | Modelo sugerido |
 |---|---|---|
-| `dashproject init` | Bootstrap: ledger + guidelines no README + dashboard | bootstrap (opus) |
-| `dashproject review` | Análise incremental do burst | incremental (sonnet) |
-| `dashproject deep` | Redescoberta de requisitos / precision | opus |
+| `dashproject init` | Bootstrap: ledger + guidelines no README + dashboard | sonnet · effort `xhigh` |
+| `dashproject review` | Análise incremental do burst | sonnet · effort `medium` |
+| `dashproject deep` | Redescoberta de requisitos / precision | sonnet · effort `high` |
 | `dashproject dashboard` | Regenera o HTML a partir do ledger | — |
 | `dashproject hook` | Insere ou atualiza o bloco no `post-commit` | — |
 | `dashproject watch` | Watcher de debounce (grava `review-due`) | — |
@@ -86,17 +86,25 @@ Duas leituras independentes:
 `PULSE` é atividade de repositório. Alta atividade com pouco movimento de
 requisito é normal em semanas de refactor e **não** derruba o progresso.
 
-## Qual modelo roda cada ciclo
+## Qual modelo e qual esforço roda cada ciclo
 
-Custo contra frequência: o que roda a cada burst usa o modelo barato; o que é
-lido uma vez e é caro de desfazer usa o caro.
+**Um modelo só — `sonnet`. O que escalona é o esforço, não o modelo**
+([ADR-0012](adr/0012-escalonamento-por-esforco.md)). Custo contra frequência: o
+que roda a cada burst leva o orçamento pequeno; o que é lido uma vez e é caro de
+desfazer leva o grande.
 
-| Situação | Modelo |
+| Situação | Esforço |
 |---|---|
-| review incremental (todo burst) | sonnet |
-| bootstrap, deep, release | opus |
-| `low_confidence` — confidence < 60, ou `knownness: unknown` num COMPLETED | escalona |
-| `major_divergence` — diff contradiz o requisito, ou > 5 reqs num commit | escalona |
+| review incremental (todo burst) | `medium` — o default do frontmatter |
+| `bootstrap` | `xhigh` — escreve o mapa inteiro e o baseline |
+| `deep`, `release` | `high` |
+| `low_confidence` — confidence < 60, ou `knownness: unknown` num COMPLETED | `high` |
+| `major_divergence` — diff contradiz o requisito, ou > 5 reqs num commit | `high` |
+
+Escalonar **não é automático**: o auditor para, nomeia a condição e o requisito,
+e pede que você rode de novo naquele esforço (ADR-0011 §3). Os valores válidos
+são `low` · `medium` · `high` · `xhigh` · `max` — nome de modelo ali é erro, e o
+`scripts/check-docs.sh` reprova.
 
 O escalonamento vale para **aquele requisito**, não para o burst inteiro.
 Configurável em `.dashproject/config.yaml` → `analysis.escalate`.
