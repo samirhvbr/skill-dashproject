@@ -67,6 +67,7 @@ daquele requisito cai 15 pontos.
 
 ```
 .dashproject/
+├── README.md                         porta de entrada do observador
 ├── config.yaml                       ajustes: debounce, modelo, pesos
 ├── project.yaml                      nome, fontes de documentação, épicos
 ├── baseline/project-baseline.yaml    escopo e confiança do bootstrap
@@ -77,15 +78,49 @@ daquele requisito cai 15 pontos.
 ├── analysis/divergences.yaml         doc esperada × código real
 ├── activity/repository.json          saída do collect-activity.py
 ├── activity/history/YYYY-MM-DD.json  uma cópia por dia
-├── agent-docs/project-state.md       leitura curta do estado
+├── agent-docs/                       lista FECHADA de três arquivos
+│   └── project-state.md              leitura curta do estado
 ├── agent-docs/implementation-map.md  o que o código É
-├── agent-docs/gap-analysis.md        planejado × completo × rejeitado
+├── agent-docs/gap-analysis.md        planejado × completo × rejeitado,
+│                                     e a justificativa de escopo
 └── dashboard/index.html              abrir direto no navegador
 ```
 
 Arquivos efêmeros criados pelo hook e pelo watcher, na raiz de `.dashproject/`:
 `pending`, `last-commit-ts`, `review-due`, além das cópias executáveis
 `watch.sh`, `pending-ready.sh` e `collect-activity.py`.
+
+## Três representações do mesmo snapshot
+
+> YAML é o dado. Markdown é a explicação. HTML é a visualização.
+
+O motivo é um só: **evitar que o dashboard tenha uma verdade diferente do
+relatório.** As três derivam do mesmo snapshot e nenhuma recalcula nada —
+copiam. Nome de campo divergente é bug de projeção, não estilo. O contrato
+campo a campo está em
+[`references/dashboard.md`](../references/dashboard.md).
+
+O hero carrega **um** KPI e a conta que o produz:
+
+```
+62.4% = (172 × 100 + 14 × 50 + 101 × 0) / 287
+```
+
+Isso responde à pergunta que justifica a ferramenta existir — *por que esse
+número?* — e é o motivo de não haver um terceiro KPI competindo no topo.
+Detalhes em [ADR-0009](adr/0009-tres-saidas-do-mesmo-snapshot.md).
+
+## Escalonamento por risco
+
+O modelo é escolhido por custo contra frequência e reversibilidade: o que roda
+a cada burst usa o modelo barato; o que é lido uma vez e é caro de desfazer usa
+o caro.
+
+| Ciclo | Modelo |
+|---|---|
+| incremental (todo burst) | sonnet |
+| bootstrap, deep, release | opus |
+| `low_confidence`, `major_divergence` | escalona **aquele requisito**, não o burst |
 
 ## Por que 0/50/100
 

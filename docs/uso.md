@@ -44,8 +44,20 @@ Requirements:
 - REQ-102: COMPLETED
 ```
 
+Para **começar** um requisito o body é dispensável — o subject basta:
+
+```
+feat(REQ-102): boleto generation
+```
+
+→ `REQ-102: IN_PROGRESS`
+
 Regras que valem a pena decorar:
 
+- Um `REQ` no subject, sem body, em `feat`/`fix` → `IN_PROGRESS`.
+- `COMPLETED` **só** com o bloco `Requirements:` no body. O verbo do subject
+  (`complete`, `conclui`, `finaliza`) é decorativo e nunca é lido —
+  [ADR-0006](adr/0006-declaracao-de-status-no-commit.md).
 - `feat` / `fix` podem mover 0 → 50 → 100.
 - `test` / `docs` **não** movem o estado; podem promover `declared` → `accepted`.
 - `refactor` / `chore` não mexem em progresso, salvo se declararem um REQ.
@@ -73,6 +85,21 @@ Duas leituras independentes:
 
 `PULSE` é atividade de repositório. Alta atividade com pouco movimento de
 requisito é normal em semanas de refactor e **não** derruba o progresso.
+
+## Qual modelo roda cada ciclo
+
+Custo contra frequência: o que roda a cada burst usa o modelo barato; o que é
+lido uma vez e é caro de desfazer usa o caro.
+
+| Situação | Modelo |
+|---|---|
+| review incremental (todo burst) | sonnet |
+| bootstrap, deep, release | opus |
+| `low_confidence` — confidence < 60, ou `knownness: unknown` num COMPLETED | escalona |
+| `major_divergence` — diff contradiz o requisito, ou > 5 reqs num commit | escalona |
+
+O escalonamento vale para **aquele requisito**, não para o burst inteiro.
+Configurável em `.dashproject/config.yaml` → `analysis.escalate`.
 
 ## Coletar atividade manualmente
 

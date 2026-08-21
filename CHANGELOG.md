@@ -11,6 +11,24 @@ e decisões registradas.
 
 ### Adicionado
 
+- `docs/adr/0006` a `0009` — quatro decisões mineradas da conversa de concepção
+  que nunca tinham sido escritas: default de status no commit e recusa de
+  inferir o verbo do subject; um número de progresso em vez de índice composto
+  de seis dimensões, e três estados em vez de sete; timeline retrospectiva sem
+  previsão de conclusão; três saídas projetando o mesmo snapshot.
+- `references/dashboard.md` — contrato campo a campo entre o snapshot e
+  `data.js` / `data.json`, com os campos reservados marcados. Antes o modelo
+  reescrevia `data.js` a cada review lendo o `index.html` para descobrir os
+  nomes.
+- Schemas que faltavam em `references/ledger.md`: ponteiros de evidência
+  (`evidence.implementation|tests|docs`), bloco `coverage` da precision,
+  `delta`, `regressions` e o schema de `divergences.yaml`.
+- `references/scoring.md` — como cada um dos quatro fatores de precision é
+  calculado a partir dos contadores (antes havia peso e nenhuma fórmula), e a
+  distinção entre regressão, pretensão recusada e crescimento de escopo.
+- `references/cycles.md` — as condições de escalonamento por risco
+  (`low_confidence`, `major_divergence`), que existiam no `config.yaml` como
+  chaves sem gatilho escrito.
 - `docs/` — arquitetura, instalação, uso, glossário, troubleshooting e o padrão
   de documentação que o repositório passa a seguir.
 - `docs/adr/` — cinco ADRs registrando as decisões que já estavam implícitas no
@@ -28,6 +46,31 @@ e decisões registradas.
 
 ### Corrigido
 
+- Protocolo de commit: `feat(REQ-102): ...` sem corpo não movia nada **e** ainda
+  derrubava traceability, o fator de maior peso na precision. Agora um `REQ`
+  único no subject significa `IN_PROGRESS`; `COMPLETED` continua exigindo
+  declaração explícita. Os quatro exemplos canônicos usavam
+  `complete boleto generation` no subject sem avisar que o verbo é decorativo —
+  sugeriam ao leitor exatamente a inferência que o parser não faz.
+- O empty state do Gantt instruía `Add start/due on epics in project.yaml` —
+  era a única orientação escrita sobre a timeline no repositório inteiro, e
+  pedia datas planejadas, o cronograma que o desenho recusou. `start:` sai do
+  template de épico.
+- `assets/templates/project.yaml` distribuía um bloco `tracking:` que nenhum
+  arquivo do repositório lia e que nenhuma documentação mencionava — resíduo do
+  índice ponderado de seis dimensões que foi abandonado. Também trazia `weight:`
+  em épico, que contradiz o rollup por média.
+- Roadmap declarava a v0.3 como "histórico/Gantt por requisito, rejeições mais
+  ricas, regressão explícita" enquanto o próprio CHANGELOG dizia que o
+  comportamento do auditor não mudou. A v0.3 passa a descrever o que ela é, e
+  esses itens vão para v0.4/v0.5.
+- Pilar "Dashboard" prometia histórico; o `index.html` nunca leu `D.history`.
+- `verification` era o único campo do ledger sem definição em português.
+- `index.html` tinha fallbacks silenciosos para o vocabulário da v0.1
+  (`D.overall`, `D.dimensions`), removido do restante do repositório na própria
+  v0.3. Um nome de campo errado renderizaria certo e a violação de contrato
+  nunca apareceria. `scripts/check-docs.sh` passa a reprovar qualquer campo
+  lido pelo `index.html` que não esteja em `references/dashboard.md`.
 - Aritmética errada no exemplo canônico de `SKILL.md` e `references/ledger.md`:
   172 COMPLETED + 14 IN_PROGRESS + 101 PLANNED em 287 ativos dá **62,4%**, não
   64,8%. O número aparecia como saída modelo para o agente imitar.

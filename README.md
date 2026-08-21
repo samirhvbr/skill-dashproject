@@ -3,7 +3,7 @@
 **Inteligência de progresso baseada em evidências para projetos desenvolvidos com agentes de IA.**
 
 Skill: `skill-dashproject`  
-Versão: 0.3 (Reliable Requirement Tracking)
+Versão: 0.3 (Documented Foundations)
 
 O DASHPROJECT não pergunta ao agente quanto o projeto está pronto. Ele **mede** o estado dos requisitos.
 
@@ -50,7 +50,7 @@ Em desenvolvimento com Claude Code (e agentes semelhantes), o implementador tend
 | Commit Protocol | O agente declara IDs e estado no commit |
 | Evidence Validation | A declaração é pretensão; o diff precisa ser plausível |
 | Measurement Precision | Clareza, granularidade, rastreio, qualidade da doc |
-| Dashboard | HTML estático — progresso, escopo, precisão, histórico |
+| Dashboard | HTML estático — progresso, escopo, precisão, atividade |
 
 ---
 
@@ -159,6 +159,13 @@ Script: [scripts/collect-activity.py](scripts/collect-activity.py).
 No `dashproject init` esta seção é **acrescentada** ao `README.md` do projeto alvo (o restante não é reescrito).
 
 ```
+feat(REQ-102): boleto generation
+```
+
+Um `REQ` no subject, sem body, já significa `IN_PROGRESS`. Declarar o estado
+explicitamente também vale:
+
+```
 feat(REQ-102): implement boleto generation
 
 Requirements:
@@ -171,6 +178,10 @@ feat(REQ-102): complete boleto generation
 Requirements:
 - REQ-102: COMPLETED
 ```
+
+`COMPLETED` **só** sai do bloco `Requirements:`. O verbo do subject é
+decorativo — o parser não lê `complete`, `conclui`, `finaliza` nem `fecha`
+([ADR-0006](docs/adr/0006-declaracao-de-status-no-commit.md)).
 
 ```
 feat(REQ-102,REQ-103): boleto generation and cancellation
@@ -254,7 +265,8 @@ skill-dashproject/
 │   ├── ledger.md                     # schemas YAML
 │   ├── cycles.md                     # bootstrap, burst, modelos
 │   ├── commit-protocol.md            # parse do commit
-│   └── activity.md                   # atividade Git ≠ progresso
+│   ├── activity.md                   # atividade Git ≠ progresso
+│   └── dashboard.md                  # contrato de projeção do snapshot
 ├── docs/                             # documentação humana (PT-BR)
 │   ├── instalacao.md
 │   ├── uso.md
@@ -308,10 +320,11 @@ No repositório alvo o auditor cria:
 | Versão | Estado | Foco |
 |---|---|---|
 | v0.1 | entregue | Bootstrap, 0/50/100, debounce, commits com REQ, dashboard, snapshots, precision |
-| v0.2 | entregue | Bootstrap conservador, completion declared/accepted/rejected, progress derivado, hook composto, watch, atividade Git |
-| **v0.3** | **atual** | Histórico/Gantt por requisito, rejeições mais ricas, regressão explícita, documentação padronizada |
-| v0.4 | planejado | Drift de spec/doc, ADRs, dependências entre requisitos |
-| v0.5 | planejado | Release readiness, riscos |
+| v0.2 | entregue | *Reliable Requirement Tracking* — bootstrap conservador, completion declared/accepted/rejected, progress derivado, hook composto, watch, atividade Git |
+| **v0.3** | **atual** | *Documented Foundations* — padrão de documentação, ADRs 0001–0009, contratos de schema (evidência, delta, divergências, projeção do dashboard), default de subject no commit |
+| v0.4 | planejado | Regressão explícita, timeline derivada de commits, rejeições mais ricas, burn-up histórico |
+| v0.5 | planejado | Drift de spec/doc, dependências entre requisitos |
+| v0.6 | planejado | Release readiness e riscos. Qualidade e segurança **como eixo separado — nunca como dimensão de percentual** ([ADR-0007](docs/adr/0007-um-numero-e-tres-estados.md)) |
 | v1.0 | planejado | Project Intelligence Dashboard estável para engenharia assistida por agentes |
 
 ---
