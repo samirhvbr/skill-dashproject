@@ -1,7 +1,5 @@
-#!/usr/bin/env bash
-# Standalone equivalent of hook-block.sh (used only if someone copies this file).
-set -euo pipefail
 # >>> DASHPROJECT >>>
+# Records a pending review. Does not call a model.
 _dp_root=$(git rev-parse --show-toplevel)
 _dp_subj=$(git log -1 --pretty=%s)
 case "$_dp_subj" in
@@ -13,4 +11,5 @@ case "$_dp_subj" in
     rm -f "$_dp_root/.dashproject/review-due"
     ;;
 esac
+unset _dp_root _dp_subj
 # <<< DASHPROJECT <<<

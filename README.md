@@ -3,7 +3,7 @@
 **Inteligência de progresso baseada em evidências para projetos desenvolvidos com agentes de IA.**
 
 Skill: `skill-dashproject`  
-Versão: 0.1
+Versão: 0.2 (Reliable Requirement Tracking)
 
 O DASHPROJECT não pergunta ao agente quanto o projeto está pronto. Ele **mede** o estado dos requisitos.
 
@@ -62,9 +62,17 @@ Em desenvolvimento com Claude Code (e agentes semelhantes), o implementador tend
 | `IN_PROGRESS` | 50 |
 | `COMPLETED` | 100 |
 
-`verification` (implementação / testes / docs) e `confidence` **não** alteram o percentual. Teste faltando em um `COMPLETED` aceito baixa confiança e gera flag; não devolve o requisito para 63%.
+`status` é a fonte da verdade. O ledger **não** guarda `progress`.
 
-Se o commit diz `COMPLETED` e o diff não toca nada relacionado, o estado **não** sobe. Fica 50 (ou o anterior) e entra em `rejected_claims`.
+Em `COMPLETED` há um segundo campo:
+
+| completion | Significado |
+|---|---|
+| `declared` | Implementação plausível; testes/docs ainda fracos — continua 100% |
+| `accepted` | Implementação + testes |
+| `rejected` | Pretensão recusada; o status **não** fica COMPLETED |
+
+Bootstrap é conservador: arquivo que “parece o requisito” não vira COMPLETED. Sem evidência forte → `IN_PROGRESS` ou `PLANNED` com `evidence.knownness: unknown`. O snapshot inicial grava `baseline_confidence`.
 
 ---
 
@@ -79,7 +87,7 @@ O % de progresso pode ser aritmeticamente exato e mesmo assim pouco confiável.
 | Commit traceability | Commits citam `REQ-` e o novo estado |
 | Documentation quality | Docs oficiais existem, estão estruturados e mapeiam o ledger |
 
-Um projeto com 287 requisitos claros e commits padronizados pode ter precision 94%. Outro com 47 itens vagos e `fix stuff` fica perto de 50% — e o 73% de progresso deve ser lido com essa ressalva.
+Pesos padrão: clareza 25, granularidade 20, **rastreio 35**, documentação 20. Sem `REQ-` nos commits a precision cai mesmo com docs perfeitos.
 
 ---
 
@@ -112,10 +120,14 @@ AGENTE DESENVOLVE
 COMMIT feat(REQ-102): …  /  Status: IN_PROGRESS|COMPLETED
      │
      ▼
-DEBOUNCE 10 min (burst A+B+C+D vira uma análise)
+HOOK (bloco marcado) → pending
+     │
+     ▼
+WATCH opcional (10 min) → review-due   — não chama o modelo
      │
      ▼
 REVIEW incremental  →  só os REQ citados + diff
+                  →  declared | accepted | rejected
      │
      ▼
 SNAPSHOT + dashboard/index.html
@@ -152,7 +164,7 @@ Requirements:
 ```
 
 - `feat` / `fix` — podem mudar 0 → 50 → 100
-- `test` / `docs` — só evidência / confiança
+- `test` / `docs` — não mudam 0/50/100; podem promover `declared` → `accepted`
 - `refactor` / `chore` — sem progresso, salvo se declararem um REQ
 - `chore(dashproject)` — reservado ao auditor (o hook ignora)
 
@@ -166,10 +178,11 @@ Texto completo: [assets/templates/README-COMMIT-GUIDELINES.md](assets/templates/
 
 1. Copie esta pasta para as skills do agente (`skill-dashproject/`).
 2. No repositório do produto: peça `dashproject init`.
-3. Instale o hook: `dashproject hook` (grava pending; não chama o modelo).
-4. Desenvolva com a convenção de commit acima.
-5. Após 10 minutos sem commit novo: `dashproject review`.
-6. Abra `.dashproject/dashboard/index.html` no navegador.
+3. Instale o hook: `dashproject hook` (insere bloco marcado; não substitui hook existente; não chama o modelo).
+4. Opcional: `dashproject watch` ou o unit `dashproject-watch.service` no Debian.
+5. Desenvolva com a convenção de commit acima.
+6. Quando `review-due` existir (ou `pending-ready.sh` sair 0): `dashproject review`.
+7. Abra `.dashproject/dashboard/index.html`.
 
 Comandos:
 
@@ -179,8 +192,9 @@ Comandos:
 | `dashproject review` | Análise incremental do burst |
 | `dashproject deep` | Redescoberta de requisitos / precision (quando pedido) |
 | `dashproject dashboard` | Regenera o HTML a partir do ledger |
-| `dashproject hook` | Instala `post-commit` |
-| `dashproject status` | Imprime progresso, precision, escopo, delta |
+| `dashproject hook` | Insere/atualiza o bloco no `post-commit` |
+| `dashproject watch` | Watcher de debounce (grava `review-due`, sem LLM) |
+| `dashproject status` | Progresso, precision, declared/accepted, escopo, delta |
 
 Modelo padrão: Sonnet no incremental. Opus (ou o que estiver em `config.yaml`) no bootstrap / deep / release. Provedor é configurável (`anthropic`, `ollama`, …).
 
@@ -235,6 +249,7 @@ No repositório alvo o auditor cria:
 | Versão | Foco |
 |---|---|
 | **v0.1** | Bootstrap, 0/50/100, debounce, commits com REQ, dashboard, snapshots, precision |
+| **v0.2** | Bootstrap conservador, completion declared/accepted/rejected, progress derivado, hook composto, watch |
 | v0.2 | Histórico/Gantt por requisito, rejeições mais ricas, regressão explícita |
 | v0.3 | Drift de spec/doc, ADRs, dependências entre requisitos |
 | v0.4 | Release readiness, riscos |

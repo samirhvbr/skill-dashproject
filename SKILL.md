@@ -1,10 +1,10 @@
 ---
 name: skill-dashproject
-description: Evidence-based project progress auditor (DASHPROJECT). Use when the user asks for DASHPROJECT, requirement map from docs, 0/50/100 progress, measurement precision, commit guidelines, Gantt, or a progress dashboard. Bootstrap writes the requirement ledger from documentation. Incremental review after a 10-minute commit burst only applies declared REQ ids (PLANNED 0, IN_PROGRESS 50, COMPLETED 100). Never invent intra-requirement percentages. Validate the declaration; do not trust the commit blindly.
+description: Evidence-based project progress auditor (DASHPROJECT). Use when the user asks for DASHPROJECT, requirement map from docs, 0/50/100 progress, completion declared/accepted/rejected, measurement precision, commit guidelines, hook install, dashproject watch, Gantt, or a progress dashboard. Bootstrap is conservative. Incremental review after a 10-minute commit burst only applies declared REQ ids. Status is the source of truth. Progress is derived. Never invent intra-requirement percentages.
 license: MIT
 metadata:
   product: DASHPROJECT
-  version: "0.1"
+  version: "0.2"
   type: auditor
 ---
 
@@ -15,8 +15,11 @@ Independent progress auditor. Progress is **measured**, not estimated.
 The requirement is the smallest unit. A requirement is only **0, 50 or 100**. Never 63%.
 
 ```
-Progress = sum(req.progress) / (count(requirements) * 100)
+progress(status) = PLANNED→0 | IN_PROGRESS→50 | COMPLETED→100
+Progress = mean(progress(status) for active requirements)
 ```
+
+Do not store `progress` on the ledger row. Derive it from `status`.
 
 `Measurement Precision` is separate: how reliable that number is (docs, granularity, commit traceability).
 
@@ -35,19 +38,31 @@ Read [references/scoring.md](references/scoring.md), [references/ledger.md](refe
 
 - Implementer writes code, tests, official `docs/`, and **declared** commits.
 - DASHPROJECT writes only under `.dashproject/` plus a DASHPROJECT section in `README.md` (commit protocol).
-- A commit declaration is a **claim**. Apply 0/50/100 only after a short plausibility check.
-- If the claim is COMPLETED but there is no plausible implementation in the diff, keep IN_PROGRESS (50) and flag.
-- Missing tests do not block 100. They lower confidence and set `verification.tests: pending`.
+- A commit declaration is a **claim**. Status changes only after a short plausibility check.
+- COMPLETED without plausible implementation stays at the previous status. Set `completion: rejected` and flag.
+- COMPLETED with plausible implementation and tests missing becomes `COMPLETED` + `completion: declared` (still 100).
+- COMPLETED with plausible implementation and tests present becomes `completion: accepted`.
+- `test`/`docs` commits do not change status. They may upgrade `declared` → `accepted`.
 
 ## Requirement states
 
-| Status | Progress |
-|---|---|
-| `PLANNED` | 0 |
-| `IN_PROGRESS` | 50 |
-| `COMPLETED` | 100 |
+| Status | Derived progress | Meaning |
+|---|---|---|
+| `PLANNED` | 0 | Not started (or evidence unknown at bootstrap) |
+| `IN_PROGRESS` | 50 | Work started |
+| `COMPLETED` | 100 | Behavior treated as done |
 
-`verification` (`implementation` / `tests` / `documentation`) is confidence, not percent.
+On `COMPLETED` also set `completion`:
+
+| completion | Meaning |
+|---|---|
+| `declared` | Claim accepted as plausible; tests/docs not fully verified |
+| `accepted` | Implementation + tests present |
+| `rejected` | Claim refused; **do not** leave status as COMPLETED |
+
+`verification` and `confidence` never change the 0/50/100 value.
+
+`evidence.knownness` ∈ `unknown | partial | known` — quality of information, not progress. Bootstrap uses this so a file that merely exists does not become COMPLETED.
 
 IDs are `REQ-NNN` (stable, never recycled). Prefer IDs already in docs; otherwise assign them once at bootstrap.
 
@@ -57,13 +72,13 @@ Do not start from commits. Start from documentation.
 
 1. Copy templates from `assets/templates/` into `.dashproject/`.
 2. Read specs, architecture, ADRs, `docs/**`, README, tests (as hints of what already exists).
-3. Write `.dashproject/requirements/requirements.yaml` — one row per testable requirement (a user-visible behavior or a hard infra contract, not "rename variable").
-4. For each req, set initial status from evidence already in the tree: existing + tested → COMPLETED; work started → IN_PROGRESS; else PLANNED.
-5. Snapshot baseline scope count. Compute progress and measurement precision.
-6. Append commit guidelines to project `README.md` (see commit protocol). Do not rewrite the rest of the README.
-7. Generate the static dashboard.
+3. Write `.dashproject/requirements/requirements.yaml` — one row per testable requirement (a user-visible behavior or a hard infra contract, not a rename).
+4. Classify **conservatively** (see scoring). File existence is not COMPLETED.
+5. Snapshot baseline scope, progress, precision, and `baseline_confidence`.
+6. Append commit guidelines to project `README.md`. Do not rewrite the rest of the README.
+7. Generate the static dashboard. Offer `dashproject hook` and `dashproject watch`.
 
-Baseline % is "this much of the identified scope is already at 50/100", not "the project started today".
+Baseline % is a conservative reading of already-done scope, not "the project started today". Prefer under-count. Record `baseline_confidence` on that snapshot only.
 
 ## Incremental (after debounce)
 
@@ -72,14 +87,10 @@ Token budget is the point. Do **not** reread all requirements.
 1. Lock. `git log BASE..HEAD` (skip `chore(dashproject)`).
 2. Parse each commit for `REQ-…` and `Status: IN_PROGRESS|COMPLETED` (see protocol).
 3. For each declared req only: read that ledger row, the commit diff, and the listed source doc if needed.
-4. Short validation: does the diff touch files that can belong to that req?
-   - yes + IN_PROGRESS → 50
-   - yes + COMPLETED + plausible implementation → 100
-   - COMPLETED + no plausible implementation → stay previous status (or 50), flag
-   - commit with no REQ ids → no progress change; lower commit-traceability for this burst
-5. Update those rows' `commits`, `confidence`, `verification`.
-6. Recompute overall from the full ledger (cheap arithmetic). Recompute precision.
-7. Snapshot, delta, dashboard. Unlock.
+4. Short validation against the diff only (see scoring). Apply status + `completion`. Never write a `progress` field.
+5. Update `commits`, `verification`, `evidence.knownness`, `confidence`.
+6. Recompute overall from statuses. Recompute precision.
+7. Snapshot, delta, dashboard. Unlock. Remove `pending` / `review-due` after a successful review.
 
 `feat` / `fix` may change status. `test` / `docs` only change verification/confidence. `refactor` / `chore` do not change 0/50/100 unless they also declare a req status.
 
@@ -97,9 +108,14 @@ Removing a req needs an explicit reason in `agent-docs`. Do not delete IDs; mark
 
 Score 0–100 from four factors (see scoring): clarity, granularity, commit traceability, documentation quality. Show it next to progress. A 73% with 57% precision is a weak number.
 
-## Debounce
+## Debounce and watch
 
-Commit burst: reset a 10-minute timer on every non-ignored commit; run one incremental over `BASE..HEAD`. Hook scripts only write `pending` + timestamp.
+Commit burst: reset a 10-minute timer on every non-ignored commit; one incremental over `BASE..HEAD`.
+
+- Hook writes `pending` + timestamp only. It never calls a model.
+- Install with [scripts/install-git-hook.sh](scripts/install-git-hook.sh) — inserts a marked block; does not replace an existing hook.
+- Optional [scripts/watch.sh](scripts/watch.sh) (`dashproject watch`) polls until debounce elapses, then writes `review-due`. On Debian, install the user systemd unit from `assets/templates/dashproject-watch.service`.
+- A Claude Code / agent session that sees `review-due` or `pending-ready.sh` exit 0 must run `dashproject review`. The watcher does not invoke the LLM.
 
 ## Layout
 
@@ -127,17 +143,19 @@ Commit burst: reset a 10-minute timer on every non-ignored commit; run one incre
 - `dashproject review` — incremental
 - `dashproject deep` — rediscover reqs / precision only when asked
 - `dashproject dashboard` — regenerate from ledger
-- `dashproject hook` — install git hook
-- `dashproject status` — print progress, precision, scope, delta
+- `dashproject hook` — install or refresh the marked post-commit block
+- `dashproject watch` — start the debounce watcher (optional, no LLM)
+- `dashproject status` — print progress, precision, completion breakdown, scope, delta
 
 ## Say this to the user
 
 ```
 PROGRESS 64.8%   PRECISION 94%
-172 COMPLETED · 14 IN_PROGRESS · 101 PLANNED   (287 reqs)
+172 COMPLETED (151 accepted / 21 declared) · 14 IN_PROGRESS · 101 PLANNED
 +7 completed this burst   BASE abc123 → HEAD jkl012
-scope 287 → 287 (no change)
+scope 287 → 287
+rejected: REQ-118 (diff unrelated)
 ```
 
-If a COMPLETED claim was rejected, list it. Do not lead with commit counts or LOC.
+On bootstrap also print `baseline_confidence`. Do not lead with commit counts or LOC.
 

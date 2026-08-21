@@ -40,6 +40,8 @@ Aliases accepted when parsing: `Implements: REQ-102` plus `Status: REQ-102: COMP
 
 It does not walk the entire tree.
 
+COMPLETED is a claim. The auditor sets `completion` to declared, accepted, or rejected. Rejected does not stay COMPLETED. A later `test(REQ-102)` may upgrade declared to accepted.
+
 ## Ignored
 
 - `chore(dashproject):` snapshots

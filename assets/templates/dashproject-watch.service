@@ -1,0 +1,14 @@
+[Unit]
+Description=DASHPROJECT debounce watcher (no LLM)
+After=network.target
+
+[Service]
+Type=simple
+# Set to the git root of the audited project:
+WorkingDirectory=/srv/CHANGE_ME
+ExecStart=/usr/bin/env bash /srv/CHANGE_ME/.dashproject/watch.sh
+Restart=always
+RestartSec=15
+
+[Install]
+WantedBy=default.target

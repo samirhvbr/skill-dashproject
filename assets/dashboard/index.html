@@ -138,7 +138,9 @@
       (c.completed || 0) + " × 100 + " +
       (c.in_progress || 0) + " × 50 + " +
       (c.planned || 0) + " × 0) / " + n +
-      ". Precision " + pct(D.precision || 0) + "%.";
+      ". Precision " + pct(D.precision || 0) + "%. " +
+      (c.completed_accepted || 0) + " accepted / " +
+      (c.completed_declared || 0) + " declared.";
 
     $("epics").innerHTML = (D.epics || []).map((e) => `
       <div class="epic">

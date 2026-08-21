@@ -1,10 +1,8 @@
 # Scoring
 
-Do not invent a second system. Progress is discrete. Precision is separate.
+Status is the source of truth. Progress is derived. Precision is separate.
 
-## Requirement progress
-
-Only three values:
+## Derived progress
 
 | status | progress |
 |---|---|
@@ -12,74 +10,87 @@ Only three values:
 | IN_PROGRESS | 50 |
 | COMPLETED | 100 |
 
-Never 63, 70, or 80. Verification does not change these numbers.
-
-## Project progress
+Never store `progress` on a requirement row. Never invent 63, 70, or 80.
 
 ```
-progress = sum(r.progress for r in active) / (n_active * 100) * 100
+Progress = mean(derived_progress(r.status) for r in active)
 ```
 
-`active` = requirements with `withdrawn != true`.
+`active` = `withdrawn != true`.
 
-Epic progress uses the same formula on that epic's subset.
+## Completion (only when deciding COMPLETED)
 
-## Status transitions
+| completion | status | progress |
+|---|---|---|
+| accepted | COMPLETED | 100 |
+| declared | COMPLETED | 100 |
+| rejected | previous (usually IN_PROGRESS) | 0 or 50 |
 
-Allowed: PLANNED → IN_PROGRESS → COMPLETED. Backward only with an explicit flag (`regression: true`) when a later burst shows the implementation was removed.
+Rejected must not remain `status: COMPLETED`.
 
-A commit may skip PLANNED → COMPLETED in one shot if validation accepts COMPLETED.
+## Incremental validation
 
-## Validation vs percent
+| Claim | Diff | Result |
+|---|---|---|
+| IN_PROGRESS | related files | status IN_PROGRESS |
+| COMPLETED | no plausible implementation | reject; keep previous status |
+| COMPLETED | implementation plausible, tests absent | COMPLETED + declared |
+| COMPLETED | implementation + tests | COMPLETED + accepted |
+| none | any | no status change; lower traceability |
+| test/docs only | cites REQ | verification only; may upgrade declared → accepted |
 
-| Check | If it fails |
-|---|---|
-| Diff unrelated to the declared REQ | do not apply the new status; flag |
-| COMPLETED but no plausible implementation | keep prior status (usually 50); flag |
-| COMPLETED but tests missing | accept 100; `verification.tests: pending`; lower confidence |
-| COMPLETED but official docs missing | accept 100; `verification.documentation: pending`; lower confidence |
-| IN_PROGRESS with a related diff | accept 50 |
+## Conservative bootstrap
+
+Do **not** treat file existence as done.
+
+| Evidence | status | knownness | completion |
+|---|---|---|---|
+| Source + implementation that matches the req **and** tests that cover it | COMPLETED | known | accepted |
+| Implementation files clearly for this req, tests missing or weak | IN_PROGRESS | partial | — |
+| Name coincidence, similar path, or only a mention in docs | PLANNED | unknown | — |
+| Nothing in the tree | PLANNED | unknown | — |
+
+Prefer IN_PROGRESS over COMPLETED. Prefer PLANNED + unknown over IN_PROGRESS when unsure.
+
+`baseline_confidence` (bootstrap snapshot only), 0–100:
+
+```
+40 * (share of reqs with source pointers) +
+30 * (share classified known or partial, not unknown) +
+20 * (share of COMPLETED that have tests) +
+10 * (docs are structured)
+```
+
+This is not precision and not progress.
 
 ## Per-requirement confidence (0–100)
 
 ```
 confidence =
-  40 * (declaration_plausible) +
+  40 * (declaration_or_bootstrap_plausible) +
   25 * (implementation_pointer) +
-  20 * (tests_present_or_passing) +
+  20 * (tests_present) +
   15 * (docs_mention_req)
 ```
 
-Subtract 15 if this session wrote the code being scored. Floor 5.
+Subtract 15 if this session wrote the code. Floor 5.
 
-`verification.implementation|tests|documentation` ∈ `pending | partial | verified`.
+## Measurement precision
 
-## Measurement precision (project)
+Defaults (override in `config.yaml`):
 
-Four factors, equal weight unless `project.yaml` overrides:
+| Factor | Weight |
+|---|---|
+| clarity | 25 |
+| granularity | 20 |
+| commit traceability | 35 |
+| documentation quality | 20 |
 
-1. **Requirement clarity** — titles are testable behaviors; source pointers exist.
-2. **Granularity** — not too coarse (one req = a whole product) and not too fine (one req = a rename). Target: a req is completable in a small burst of commits.
-3. **Commit traceability** — share of recent commits (last snapshot window + last 20) that cite `REQ-` and a status.
-4. **Documentation quality** — official docs exist, are structured, and map to ledger sources.
+Traceability is the most important factor for incremental reviews.
 
-Each factor 0–100. Overall precision = mean.
+## What never changes status
 
-High precision needs both many well-cut requirements **and** commits that cite them. Vague docs + generic commits → low precision even if progress arithmetic is exact.
-
-## Delta and scope
-
-Delta is change in `progress` and in counts (completed / in_progress / planned).
-
-If `n_active` grew, say so. A drop caused by new requirements is a **scope change**, not a regression.
-
-Regressions are only status moving backward on the same id.
-
-## What never changes progress
-
-- commit count, LOC, files created
-- TODO removal, formatting, renames
+- commit count, LOC, formatting, renames
 - `refactor` / `chore` without a REQ status
-- `test` / `docs` without COMPLETED/IN_PROGRESS
-- agent prose ("implemented successfully")
+- agent prose
 - dashboard / snapshot files

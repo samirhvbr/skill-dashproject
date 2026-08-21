@@ -1,6 +1,6 @@
 # Requirement ledger
 
-Source of progress. Lives only in `.dashproject/`.
+Source of progress. Lives only in `.dashproject/`. `status` is the source of truth; do not persist `progress`.
 
 ## requirements.yaml
 
@@ -19,8 +19,9 @@ requirements:
       - path: docs/financeiro.md
         line: 42
     status: IN_PROGRESS
-    progress: 50
     withdrawn: false
+    evidence:
+      knownness: partial
     commits: [jkl012]
     verification:
       implementation: partial
@@ -30,53 +31,68 @@ requirements:
     notes: ""
 ```
 
-Completed example:
+Completed, declared vs accepted:
 
 ```yaml
-  - id: REQ-102
+  - id: REQ-101
     status: COMPLETED
-    progress: 100
+    completion: declared
+    evidence:
+      knownness: partial
+    verification:
+      implementation: verified
+      tests: pending
+      documentation: pending
+
+  - id: REQ-100
+    status: COMPLETED
+    completion: accepted
+    evidence:
+      knownness: known
     verification:
       implementation: verified
       tests: verified
       documentation: verified
-    confidence: 98
 ```
 
-IDs: `REQ-NNN`, stable. Withdrawn rows stay in the file with `withdrawn: true` and are excluded from the denominator.
+Rejected claims live on the snapshot (`rejected_claims`), not as `status: COMPLETED`.
+
+IDs: `REQ-NNN`, stable. Withdrawn rows stay with `withdrawn: true` and leave the denominator.
 
 ## coverage.yaml
+
+Rollup only. Here `progress` is derived.
 
 ```yaml
 totals:
   active: 287
   completed: 172
+  completed_accepted: 151
+  completed_declared: 21
   in_progress: 14
   planned: 101
+  unknown_evidence: 40
   withdrawn: 0
 progress: 64.8
 precision:
-  overall: 94
+  overall: 91
   clarity: 92
   granularity: 95
-  traceability: 97
+  traceability: 88
   documentation: 89
-epics:
-  finance: { n: 40, completed: 22, in_progress: 3, planned: 15, progress: 58.8 }
 ```
 
 ## analysis/latest.yaml
 
 ```yaml
 snapshot: 22
-timestamp: 2026-08-21T15:18:00-03:00
 level: incremental
 model: sonnet
 base: abc123
 head: jkl012
-commits_in_burst: 4
 progress: 64.8
-precision: 94
+precision: 91
+baseline_confidence: null    # set only on the bootstrap snapshot
 scope:
   original: 287
   current: 287
@@ -84,32 +100,18 @@ scope:
   removed: 0
 counts:
   completed: 172
+  completed_accepted: 151
+  completed_declared: 21
   in_progress: 14
   planned: 101
-delta:
-  progress: 3.6
-  completed: 7
-  started: 3
 rejected_claims:
   - { id: REQ-118, declared: COMPLETED, reason: "diff does not touch billing" }
-regressions: []
 ```
 
 Copy to `analysis/history/YYYY-MM-DDTHH-MM.yaml`.
 
-## divergences.yaml
-
-Flags only (do not invent extra percents):
-
-- `rejected_completed`
-- `untraced_commit`
-- `unexpected_work` (code with no REQ)
-- `scope_added` / `scope_removed`
-- `docs_stale`
-- `regression`
-
 ## Reality Map
 
-`implementation-map.md` — what the code is, by epic.
-`gap-analysis.md` — planned vs completed vs rejected claims.
-`project-state.md` — one page: progress, precision, scope, top flags.
+`implementation-map.md` — what the code is.
+`gap-analysis.md` — planned vs completed vs rejected vs unknown evidence.
+`project-state.md` — progress, precision, completion split, baseline_confidence if present, top flags.

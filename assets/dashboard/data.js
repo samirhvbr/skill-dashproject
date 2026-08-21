@@ -16,7 +16,15 @@ window.DASHPROJECT_DATA = {
   },
   "scope": { "original": 0, "current": 0, "added": 0, "removed": 0 },
   "delta": { "progress": 0, "completed": 0, "started": 0 },
-  "counts": { "completed": 0, "in_progress": 0, "planned": 0, "active": 0 },
+  "counts": {
+    "completed": 0,
+    "completed_accepted": 0,
+    "completed_declared": 0,
+    "in_progress": 0,
+    "planned": 0,
+    "active": 0
+  },
+  "baseline_confidence": null,
   "epics": [],
   "timeline": [],
   "divergences": [],

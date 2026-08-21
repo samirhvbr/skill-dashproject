@@ -2,50 +2,43 @@
 
 ## Bootstrap
 
-Input: existing documentation (and code only to classify already-done work).
+Conservative classification only. See scoring.
 
-Output: full `requirements.yaml`, baseline scope, precision, README commit section, dashboard.
+Output: `requirements.yaml`, baseline scope, precision, `baseline_confidence`, README commit section, dashboard.
 
-This is the expensive pass. Prefer the configured bootstrap model.
-
-Discovery order:
-
-1. `docs/specs`, `docs/requirements`, `docs/**/*.md`
-2. ADRs
-3. README / OPERATIONS / architecture
-4. tests and routes as hints for COMPLETED vs PLANNED
-
-Granularity rule: one requirement = one completable behavior. Split "WhatsApp F1" into webhook, job/IA, aba Canais, persistência — do not keep a single mega-req.
+Prefer the configured bootstrap model.
 
 ## Commit burst
 
 ```
-commit → reset debounce (default 10 min)
-another commit → restart
-timer fires → one incremental over BASE..HEAD
+commit → hook writes pending + timestamp
+       → watch (optional) waits debounce_minutes
+       → review-due
+       → agent runs incremental (never the hook, never the watcher)
 ```
 
-Hook writes `.dashproject/pending` and `last-commit-ts` only.
+`scripts/pending-ready.sh` exits 0 when a review is owed.
 
 ## Incremental
 
-Input: commits in the burst + ledger rows they name.
+Input: burst commits + named ledger rows. Do not reread the whole repo.
 
-Do not reload the whole repo. Arithmetic over the ledger is enough for the new %.
+Apply status + `completion` from scoring. `test`/`docs` may upgrade `declared` → `accepted`.
 
-`test`/`docs` commits that cite a REQ only update `verification` and precision.
+## Watch
 
-Untraced commits do not move progress; they lower traceability.
+`dashproject watch` runs [scripts/watch.sh](../scripts/watch.sh). It only writes `.dashproject/review-due`. Optional `review_notify` in config is a local command (e.g. `systemctl --user start …`); it must not be treated as “call the model”.
 
-## Deep (on request)
+Debian user unit: `assets/templates/dashproject-watch.service`.
 
-Rediscover requirements (scope may grow), re-score precision, rebuild Reality Map. Does not rewrite COMPLETED to PLANNED without evidence of removal.
+## Hook install
+
+[scripts/install-git-hook.sh](../scripts/install-git-hook.sh) inserts or refreshes the block between `# >>> DASHPROJECT >>>` and `# <<< DASHPROJECT <<<`. Existing hook body outside the markers is left untouched.
+
+## Deep
+
+Rediscover requirements on request. Do not demote COMPLETED without evidence of removal.
 
 ## Model routing
 
-| Situation | Default |
-|---|---|
-| incremental | sonnet |
-| bootstrap / deep / release | opus |
-
-Honor `config.yaml`. A local Ollama model is valid; record it on the snapshot.
+incremental → sonnet. bootstrap / deep / release → opus. Honor `config.yaml`.

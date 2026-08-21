@@ -9,12 +9,15 @@ analysis:
     release: opus
     major_divergence: opus
   auto_commit: false
+  poll_seconds: 30
+
+review_notify: ""
 
 precision_weights:
   clarity: 25
-  granularity: 25
-  traceability: 25
-  documentation: 25
+  granularity: 20
+  traceability: 35
+  documentation: 20
 
 ignore_commit_subjects:
   - "chore(dashproject)"
