@@ -90,6 +90,23 @@ while IFS= read -r md; do
 done < <(git ls-files '*.md' 2>/dev/null)
 (( broken == 0 )) && ok "$checked link(s) relativo(s), nenhum quebrado"
 
+# --------------------------------------------- contrato de projeção
+head_ "Contrato de projeção do dashboard"
+if [[ -f assets/dashboard/index.html && -f references/dashboard.md ]]; then
+  missing=""
+  while IFS= read -r campo; do
+    grep -q -- "\`$campo\`" references/dashboard.md || missing="$missing $campo"
+  done < <(grep -oE '\bD\.[A-Za-z_][A-Za-z0-9_]*' assets/dashboard/index.html \
+             | sed 's/^D\.//' | sort -u)
+  if [[ -n "$missing" ]]; then
+    bad "campo(s) lido(s) pelo index.html e ausente(s) em references/dashboard.md:$missing"
+  else
+    ok "todo campo lido pelo index.html está no contrato"
+  fi
+else
+  ok "sem dashboard para validar"
+fi
+
 # ------------------------------------------------------------- sintaxe
 head_ "Sintaxe"
 for s in scripts/*.sh; do
