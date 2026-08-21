@@ -36,7 +36,8 @@ Rejected must not remain `status: COMPLETED`.
 | COMPLETED | no plausible implementation | reject; keep previous status |
 | COMPLETED | implementation plausible, tests absent | COMPLETED + declared |
 | COMPLETED | implementation + tests | COMPLETED + accepted |
-| none | any | no status change; lower traceability |
+| none, single REQ in subject | related files | status IN_PROGRESS (see commit-protocol) |
+| no REQ at all | any | no status change; lower traceability |
 | test/docs only | cites REQ | verification only; may upgrade declared → accepted |
 
 ## Conservative bootstrap
@@ -87,6 +88,30 @@ Defaults (override in `config.yaml`):
 | documentation quality | 20 |
 
 Traceability is the most important factor for incremental reviews.
+
+Each factor is scored from the counters in `coverage.yaml`, not by impression:
+
+| Factor | Scored from |
+|---|---|
+| clarity | share of active reqs with a `source` pointer into docs |
+| granularity | share of active reqs that are a single testable behavior — penalise reqs spanning a whole module, and renames |
+| traceability | share of active reqs cited by at least one commit (`cited_in_commit / active`) |
+| documentation | share of active reqs whose source doc exists and is structured |
+
+## Regression
+
+A requirement that was `COMPLETED` in `analysis/history` and no longer is gets
+recorded in `latest.yaml` → `regressions`.
+
+Three things that look alike and are not:
+
+| | What it is |
+|---|---|
+| `regressions` | a req lost COMPLETED across snapshots |
+| `rejected_claims` | a claim refused inside this burst; status never became COMPLETED |
+| scope growth | denominator grew; the percentage fell and **nothing regressed** |
+
+Never fold the third into the first.
 
 ## What never changes status
 

@@ -25,7 +25,7 @@ Do not store `progress` on the ledger row. Derive it from `status`.
 
 `.dashproject/` is an observer, not canonical docs. Coding agents must not edit the ledger to inflate progress.
 
-Read [references/scoring.md](references/scoring.md), [references/ledger.md](references/ledger.md), [references/cycles.md](references/cycles.md), [references/commit-protocol.md](references/commit-protocol.md), and [references/activity.md](references/activity.md) when needed.
+Read [references/scoring.md](references/scoring.md), [references/ledger.md](references/ledger.md), [references/cycles.md](references/cycles.md), [references/commit-protocol.md](references/commit-protocol.md), [references/activity.md](references/activity.md), and [references/dashboard.md](references/dashboard.md) when needed.
 
 Progress and activity are independent. Never raise or lower % because files were added.
 
@@ -89,13 +89,13 @@ Baseline % is a conservative reading of already-done scope, not "the project sta
 Token budget is the point. Do **not** reread all requirements.
 
 1. Lock. `git log BASE..HEAD` (skip `chore(dashproject)`).
-2. Parse each commit for `REQ-…` and `Status: IN_PROGRESS|COMPLETED` (see protocol).
+2. Parse each commit for `REQ-…` and `Status: IN_PROGRESS|COMPLETED` (see protocol). A single-ID subject with no body means IN_PROGRESS. Never read the verb.
 3. For each declared req only: read that ledger row, the commit diff, and the listed source doc if needed.
 4. Short validation against the diff only (see scoring). Apply status + `completion`. Never write a `progress` field.
-5. Update `commits`, `verification`, `evidence.knownness`, `confidence`.
-6. Recompute overall from statuses. Recompute precision.
+5. Update `commits`, `verification`, `evidence.knownness`, `evidence.implementation|tests|docs` pointers, `confidence`.
+6. Recompute overall from statuses. Recompute precision and the `coverage` counters. Record regressions.
 7. Run `collect-activity.py` (git only). Merge into the dashboard. Do not ask the implementer how many files they created.
-8. Snapshot, delta, dashboard. Unlock. Remove `pending` / `review-due` after a successful review.
+8. Snapshot, delta, dashboard — regenerate all three outputs from that one snapshot ([dashboard.md](references/dashboard.md)). Unlock. Remove `pending` / `review-due` after a successful review.
 
 `feat` / `fix` may change status. `test` / `docs` only change verification/confidence. `refactor` / `chore` do not change 0/50/100 unless they also declare a req status.
 
@@ -107,7 +107,7 @@ Adding requirements increases the denominator. That is **not** a regression.
 
 Record in the snapshot: `scope.original`, `scope.current`, `scope.added`, `scope.removed`, and explain a drop in % when scope grew.
 
-Removing a req needs an explicit reason in `agent-docs`. Do not delete IDs; mark `withdrawn: true` and exclude from the denominator.
+Removing a req needs an explicit reason in `agent-docs/gap-analysis.md`. Do not delete IDs; mark `withdrawn: true` and exclude from the denominator.
 
 ## Measurement precision
 
@@ -126,6 +126,7 @@ Commit burst: reset a 10-minute timer on every non-ignored commit; one increment
 
 ```
 .dashproject/
+  README.md
   config.yaml
   project.yaml
   baseline/project-baseline.yaml
@@ -163,6 +164,7 @@ Written by the hook and the watcher, not by the model: `pending`,
 
 ```
 PROGRESS 62.4%   PRECISION 94%
+(172x100 + 14x50 + 101x0) / 287
 172 COMPLETED (151 accepted / 21 declared) · 14 IN_PROGRESS · 101 PLANNED
 +7 completed this burst   BASE abc123 → HEAD jkl012
 scope 287 → 287
