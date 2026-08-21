@@ -1,9 +1,13 @@
-# .dashproject (observer)
+# .dashproject (observador)
 
-This tree is DASHPROJECT's independent view of the repo.
+Esta árvore é a visão independente do DASHPROJECT sobre o repositório.
 
-- Official `docs/` describe the intended system.
-- `agent-docs/implementation-map.md` describes the implemented system.
-- The requirement ledger and snapshots are evidence, not marketing.
+- O `docs/` oficial descreve o sistema **pretendido**.
+- `agent-docs/implementation-map.md` descreve o sistema **implementado**.
+- O ledger de requisitos e os snapshots são evidência, não peça de marketing.
 
-Do not edit `requirements/` or `analysis/` to inflate progress. Only the auditor protocol updates those files.
+Não edite `requirements/` nem `analysis/` para inflar progresso. Só o protocolo
+do auditor atualiza esses arquivos.
+
+Progresso vem de `status` (`PLANNED` 0 · `IN_PROGRESS` 50 · `COMPLETED` 100) e é
+sempre derivado — nunca gravado na linha do requisito.

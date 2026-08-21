@@ -10,6 +10,41 @@ from datetime import datetime, timedelta, timezone
 from pathlib import Path
 
 
+# Extensions counted as "source" activity. Shell and markup were missing before
+# v0.3, which pushed every script and page into "other".
+SOURCE_EXTENSIONS = (
+    ".php",
+    ".py",
+    ".js",
+    ".mjs",
+    ".cjs",
+    ".ts",
+    ".tsx",
+    ".jsx",
+    ".vue",
+    ".svelte",
+    ".go",
+    ".rs",
+    ".java",
+    ".kt",
+    ".swift",
+    ".c",
+    ".h",
+    ".cpp",
+    ".cs",
+    ".rb",
+    ".sh",
+    ".bash",
+    ".sql",
+    ".html",
+    ".htm",
+    ".css",
+    ".scss",
+    ".sass",
+    ".less",
+)
+
+
 def git(args: list[str], cwd: str) -> str:
     r = subprocess.run(
         ["git", *args],
@@ -55,26 +90,7 @@ def classify(path: str) -> str:
         (".yml", ".yaml", ".toml", ".ini", ".env", ".example", ".json", ".lock")
     ) or name in {"composer.json", "package.json", "pyproject.toml"}:
         return "configuration"
-    if name.endswith(
-        (
-            ".php",
-            ".py",
-            ".js",
-            ".ts",
-            ".tsx",
-            ".jsx",
-            ".go",
-            ".rs",
-            ".java",
-            ".c",
-            ".h",
-            ".cpp",
-            ".rb",
-            ".css",
-            ".scss",
-            ".blade.php",
-        )
-    ):
+    if name.endswith(SOURCE_EXTENSIONS):
         return "source"
     return "other"
 

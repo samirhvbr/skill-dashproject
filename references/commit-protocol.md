@@ -32,10 +32,30 @@ Requirements:
 
 Aliases accepted when parsing: `Implements: REQ-102` plus `Status: REQ-102: COMPLETED`.
 
+## Default when only the subject declares
+
+`feat` or `fix` with exactly one `REQ-NNN` in the subject and no body →
+`IN_PROGRESS`. Never COMPLETED.
+
+The body stays required for: any COMPLETED, more than one ID, and `test`/`docs`
+commits meant to change `verification`.
+
+Starting is cheap to declare; finishing is not. That asymmetry mirrors the cost
+of being wrong — see [ADR-0006](../docs/adr/0006-declaracao-de-status-no-commit.md).
+
+## No verb inference
+
+The parser never reads the verb in the subject. `complete`, `conclui`,
+`finaliza`, `fecha` are free text and carry no meaning to the auditor — a
+Portuguese-writing agent produces all four, and an intent parser would fail
+silently in the direction that manufactures false 100s.
+
+`COMPLETED` comes from the `Requirements:` block. Nowhere else.
+
 ## What the auditor reads
 
 1. IDs in the subject or `Requirements:` list
-2. Declared status
+2. Declared status — from the body; absent, a single-ID subject means IN_PROGRESS
 3. File list of that commit (plausibility)
 
 It does not walk the entire tree.
@@ -48,6 +68,15 @@ COMPLETED is a claim. The auditor sets `completion` to declared, accepted, or re
 - Merge commits unless they declare REQs
 
 ## Examples
+
+Subject only — no body needed to start:
+
+```
+feat(REQ-102): boleto generation
+```
+
+→ `REQ-102: IN_PROGRESS`
+
 
 ```
 feat(REQ-102): implement boleto generation
@@ -62,6 +91,9 @@ feat(REQ-102): complete boleto generation
 Requirements:
 - REQ-102: COMPLETED
 ```
+
+The word `complete` in that subject is decorative. What sets the status is the
+`Requirements:` block. Drop the block and this commit means IN_PROGRESS.
 
 ```
 test(REQ-102): cover boleto emission

@@ -1,0 +1,24 @@
+# Artefatos de release — gerados por scripts/build-release.sh, nunca commitados
+dist/
+*.zip
+
+# Saída do próprio auditor quando o DASHPROJECT roda sobre este repositório
+.dashproject/
+
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+
+# Sistema operacional / editor
+.DS_Store
+Thumbs.db
+*.swp
+*~
+
+# Configuração local de ferramentas (não versionar segredos ou preferências pessoais)
+.claude/settings.local.json
+.continue/secrets.yaml
+.env
+.env.local

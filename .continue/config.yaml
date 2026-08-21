@@ -1,0 +1,29 @@
+name: skill-dashproject
+version: 0.3.0
+schema: v1
+
+# Regras carregadas em toda conversa neste repositório.
+rules:
+  - uses: file
+    with:
+      path: ./rules/dominio.md
+  - uses: file
+    with:
+      path: ./rules/commits.md
+  - uses: file
+    with:
+      path: ./rules/documentacao.md
+
+docs:
+  - name: Arquitetura
+    startUrl: ./docs/arquitetura.md
+  - name: Padrão de documentação
+    startUrl: ./docs/padrao-documentacao.md
+  - name: Glossário
+    startUrl: ./docs/glossario.md
+
+context:
+  - provider: file
+  - provider: code
+  - provider: diff
+  - provider: terminal

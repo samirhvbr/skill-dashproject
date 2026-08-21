@@ -4,6 +4,15 @@ O progresso do projeto é medido por requisito (`REQ-NNN`). Cada requisito vale 
 
 ### Formato
 
+Para **começar** um requisito, o subject basta:
+
+```
+feat(REQ-102): boleto generation
+```
+
+Um `REQ-NNN` no subject de um `feat`/`fix`, sem corpo, já significa
+`IN_PROGRESS`. Declarar explicitamente também vale:
+
 ```
 feat(REQ-102): implement boleto generation
 
@@ -11,7 +20,7 @@ Requirements:
 - REQ-102: IN_PROGRESS
 ```
 
-Quando o comportamento estiver feito:
+Quando o comportamento estiver feito, o corpo é **obrigatório**:
 
 ```
 feat(REQ-102): complete boleto generation
@@ -19,6 +28,10 @@ feat(REQ-102): complete boleto generation
 Requirements:
 - REQ-102: COMPLETED
 ```
+
+> A palavra `complete` no subject é decorativa. O que muda o estado é o bloco
+> `Requirements:`. O DASHPROJECT não lê o verbo — nem `complete`, nem
+> `conclui`, nem `finaliza`, nem `fecha`.
 
 Vários requisitos no mesmo commit (só se forem do mesmo recorte):
 
@@ -39,7 +52,8 @@ Requirements:
 
 ### Regras
 
-1. Um commit declara quais requisitos altera e o novo estado (`IN_PROGRESS` ou `COMPLETED`).
+1. Um commit cita os requisitos que altera. Para `COMPLETED`, declara o estado
+   no corpo — começar é barato de declarar, concluir não é.
 2. Não misture dezenas de requisitos não relacionados.
 3. `COMPLETED` significa o comportamento daquele requisito, não “o módulo inteiro”.
 4. O DASHPROJECT valida a declaração. Sem implementação plausível, o requisito não vai para 100.

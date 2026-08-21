@@ -2,8 +2,17 @@
   "project": "EXAMPLE",
   "generated": "2026-08-21T15:18:00-03:00",
   "snapshot": 0,
-  "overall": 0,
-  "confidence": 0,
+  "progress": 0,
+  "precision": 0,
+  "scope": { "original": 0, "current": 0, "added": 0, "removed": 0 },
+  "counts": {
+    "completed": 0,
+    "completed_accepted": 0,
+    "completed_declared": 0,
+    "in_progress": 0,
+    "planned": 0,
+    "active": 0
+  },
   "epics": [],
-  "note": "Regenerated from analysis/latest.yaml. data.js is what the dashboard loads."
+  "note": "Fixture zerada. Regenerada de analysis/latest.yaml. O dashboard carrega data.js; data.json existe para consumo por outras ferramentas."
 }
