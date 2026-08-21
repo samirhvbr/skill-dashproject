@@ -1,0 +1,9 @@
+{
+  "project": "EXAMPLE",
+  "generated": "2026-08-21T15:18:00-03:00",
+  "snapshot": 0,
+  "overall": 0,
+  "confidence": 0,
+  "epics": [],
+  "note": "Regenerated from analysis/latest.yaml. data.js is what the dashboard loads."
+}

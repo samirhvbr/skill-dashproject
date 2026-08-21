@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>DASHPROJECT</title>
+  <style>
+    :root {
+      --bg: #0e1110;
+      --bg-2: #161b19;
+      --line: #2a332f;
+      --ink: #e8ece6;
+      --muted: #8b968e;
+      --gold: #d4a656;
+      --good: #7dba6f;
+      --warn: #e0a14a;
+      --bad: #d36b5c;
+      --bar: #1f2623;
+    }
+    * { box-sizing: border-box; }
+    html, body { margin: 0; background: var(--bg); color: var(--ink); }
+    body {
+      font: 15px/1.5 "IBM Plex Sans", "Segoe UI", sans-serif;
+      letter-spacing: 0.01em;
+    }
+    header {
+      padding: 28px 36px 18px;
+      border-bottom: 1px solid var(--line);
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-end;
+      gap: 24px;
+    }
+    .brand { font-size: 12px; letter-spacing: 0.22em; text-transform: uppercase; color: var(--gold); }
+    h1 { font-weight: 560; font-size: 28px; margin: 6px 0 0; }
+    .meta { color: var(--muted); font-size: 13px; text-align: right; }
+    .hero { padding: 32px 36px 8px; }
+    .overall { font-size: 72px; font-weight: 560; line-height: 1; letter-spacing: -0.03em; }
+    .overall span { font-size: 28px; color: var(--muted); }
+    .bar { height: 10px; background: var(--bar); border-radius: 99px; overflow: hidden; margin: 16px 0 10px; max-width: 720px; }
+    .bar > i { display: block; height: 100%; background: linear-gradient(90deg, #b8893a, var(--gold)); }
+    .why { color: var(--muted); max-width: 820px; }
+    section { padding: 22px 36px; border-top: 1px solid var(--line); }
+    h2 { font-size: 12px; letter-spacing: 0.18em; text-transform: uppercase; color: var(--muted); margin: 0 0 16px; }
+    .grid { display: grid; grid-template-columns: 1.2fr 0.8fr; gap: 32px; }
+    @media (max-width: 900px) { .grid, header { display: block; } }
+    .epic { display: grid; grid-template-columns: 140px 1fr 48px; gap: 12px; align-items: center; margin: 8px 0; }
+    .epic .track { height: 8px; background: var(--bar); border-radius: 99px; overflow: hidden; }
+    .epic .track > i { display: block; height: 100%; background: var(--good); }
+    .dims { display: grid; gap: 8px; }
+    .dim { display: grid; grid-template-columns: 1fr auto; color: var(--muted); font-size: 13px; }
+    .gantt { display: grid; gap: 10px; }
+    .gantt-row { display: grid; grid-template-columns: 140px 1fr; gap: 12px; align-items: center; }
+    .gantt-track { position: relative; height: 18px; background: #141917; border: 1px solid var(--line); }
+    .gantt-bar { position: absolute; top: 3px; height: 12px; background: var(--gold); opacity: 0.85; }
+    .pills { display: flex; flex-wrap: wrap; gap: 10px; }
+    .pill { border: 1px solid var(--line); padding: 8px 12px; border-radius: 4px; font-size: 13px; background: var(--bg-2); }
+    .pill.warn { border-color: #5a4020; color: var(--warn); }
+    .pill.bad { border-color: #5a2e28; color: var(--bad); }
+    .pill.ok { border-color: #2a4a2e; color: var(--good); }
+    table { width: 100%; border-collapse: collapse; font-size: 13px; }
+    th, td { text-align: left; padding: 8px 6px; border-bottom: 1px solid var(--line); vertical-align: top; }
+    th { color: var(--muted); font-weight: 500; }
+    footer { padding: 20px 36px 40px; color: var(--muted); font-size: 12px; }
+  </style>
+</head>
+<body>
+  <header>
+    <div>
+      <div class="brand">DASHPROJECT · evidence auditor</div>
+      <h1 id="project-name">—</h1>
+    </div>
+    <div class="meta" id="meta"></div>
+  </header>
+
+  <div class="hero">
+    <div class="overall" id="overall">—<span>%</span></div>
+    <div class="bar"><i id="overall-bar" style="width:0%"></i></div>
+    <p class="why" id="why"></p>
+  </div>
+
+  <section class="grid">
+    <div>
+      <h2>Epics</h2>
+      <div id="epics"></div>
+    </div>
+    <div>
+      <h2>Measurement precision</h2>
+      <div class="dims" id="dims"></div>
+    </div>
+  </section>
+
+  <section>
+    <h2>Timeline</h2>
+    <div class="gantt" id="gantt"></div>
+  </section>
+
+  <section>
+    <h2>Since last snapshot</h2>
+    <div class="pills" id="pills"></div>
+  </section>
+
+  <section>
+    <h2>Divergences</h2>
+    <table>
+      <thead><tr><th>Req</th><th>Tipo</th><th>Intended</th><th>Actual</th></tr></thead>
+      <tbody id="divs"></tbody>
+    </table>
+  </section>
+
+  <footer>
+    Cada requisito vale 0, 50 ou 100. Progresso é a média. Precisão mede a qualidade da medição.
+    Declaração no commit é uma pretensão — o auditor valida. Observer: <code>.dashproject/</code>
+  </footer>
+
+  <script src="data.js"></script>
+  <script>
+    const D = window.DASHPROJECT_DATA || {};
+    const $ = (id) => document.getElementById(id);
+    const pct = (n) => Math.round((Number(n) || 0) * 10) / 10;
+
+    $("project-name").textContent = D.project || "uninitialized";
+    const progress = D.progress != null ? D.progress : D.overall;
+    $("overall").innerHTML = pct(progress) + "<span>%</span>";
+    $("overall-bar").style.width = Math.min(100, Number(progress) || 0) + "%";
+    $("meta").innerHTML = [
+      "snapshot #" + (D.snapshot ?? "—"),
+      D.level || "",
+      D.model || "",
+      D.head ? ("HEAD " + D.head) : "",
+      D.generated || ""
+    ].filter(Boolean).join("<br>");
+
+    const c = D.counts || {};
+    const n = c.active || ((c.completed || 0) + (c.in_progress || 0) + (c.planned || 0));
+    $("why").textContent =
+      pct(progress) + "% = (" +
+      (c.completed || 0) + " × 100 + " +
+      (c.in_progress || 0) + " × 50 + " +
+      (c.planned || 0) + " × 0) / " + n +
+      ". Precision " + pct(D.precision || 0) + "%.";
+
+    $("epics").innerHTML = (D.epics || []).map((e) => `
+      <div class="epic">
+        <div>${e.name || e.id}</div>
+        <div class="track"><i style="width:${e.progress || 0}%"></i></div>
+        <div>${pct(e.progress)}%</div>
+      </div>`).join("") || "<p class='why'>No epics yet. Run bootstrap.</p>";
+
+    const dims = D.precision_factors || D.dimensions || {};
+    $("dims").innerHTML = (Object.keys(dims).length
+      ? Object.keys(dims).map((k) => `
+      <div class="dim"><span>${k}</span><strong>${pct(dims[k])}%</strong></div>
+    `).join("")
+      : "<div class='dim'><span>overall</span><strong>" + pct(D.precision || 0) + "%</strong></div>");
+
+    $("gantt").innerHTML = (D.timeline || []).map((t) => `
+      <div class="gantt-row">
+        <div>${t.name || t.id}</div>
+        <div class="gantt-track">
+          <div class="gantt-bar" style="left:${t.left || 0}%;width:${t.width || 10}%"></div>
+        </div>
+      </div>`).join("") || "<p class='why'>Add start/due on epics in project.yaml to draw the Gantt.</p>";
+
+    const dlt = D.delta || {};
+    const sc = D.scope || {};
+    const pills = [
+      ["pill", ((dlt.progress || 0) >= 0 ? "+" : "") + pct(dlt.progress) + "% progress"],
+      ["pill ok", "+" + (dlt.completed || 0) + " completed"],
+      ["pill", "+" + (dlt.started || 0) + " started"],
+      ["pill", "scope " + (sc.original || n) + " → " + (sc.current || n)],
+      ["pill warn", (D.rejected_claims || []).length + " rejected claims"],
+      ["pill bad", (D.regressions || []).length + " regressions"]
+    ];
+    $("pills").innerHTML = pills.map(([cl, tx]) => `<div class="${cl}">${tx}</div>`).join("");
+
+    $("divs").innerHTML = (D.divergences || []).map((x) => `
+      <tr>
+        <td>${x.requirement || ""}</td>
+        <td>${x.type || ""}</td>
+        <td>${x.intended || ""}</td>
+        <td>${x.actual || ""}</td>
+      </tr>`).join("") || `<tr><td colspan="4">Nenhuma divergência neste snapshot.</td></tr>`;
+  </script>
+</body>
+</html>

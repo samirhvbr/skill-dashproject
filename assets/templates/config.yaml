@@ -1,0 +1,20 @@
+analysis:
+  provider: anthropic
+  model: sonnet
+  debounce_minutes: 10
+  default_level: incremental
+  escalate:
+    bootstrap: opus
+    low_confidence: opus
+    release: opus
+    major_divergence: opus
+  auto_commit: false
+
+precision_weights:
+  clarity: 25
+  granularity: 25
+  traceability: 25
+  documentation: 25
+
+ignore_commit_subjects:
+  - "chore(dashproject)"

@@ -1,0 +1,24 @@
+project:
+  name: CHANGE_ME
+  version: "0.0"
+
+sources:
+  specifications: []
+  architecture: []
+  requirements: []
+  tests:
+    - tests
+
+tracking:
+  commits: true
+  tests: true
+  documentation: true
+  security: true
+  architecture: true
+
+epics: []
+  # - id: finance
+  #   name: Financeiro
+  #   weight: 20
+  #   start: 2026-08-01
+  #   due: 2026-10-15
