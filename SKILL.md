@@ -4,7 +4,7 @@ description: Evidence-based project progress auditor (DASHPROJECT). Use when the
 license: MIT
 metadata:
   product: DASHPROJECT
-  version: "0.2"
+  version: "0.3"
   type: auditor
 ---
 
@@ -73,7 +73,7 @@ IDs are `REQ-NNN` (stable, never recycled). Prefer IDs already in docs; otherwis
 
 Do not start from commits. Start from documentation.
 
-1. Copy templates from `assets/templates/` into `.dashproject/`.
+1. Copy `config.yaml`, `project.yaml` and `README.md` from `assets/templates/` into `.dashproject/`. `README-COMMIT-GUIDELINES.md` is not copied there — it is appended to the project `README.md` in step 7.
 2. Read specs, architecture, ADRs, `docs/**`, README, tests (as hints of what already exists).
 3. Write `.dashproject/requirements/requirements.yaml` — one row per testable requirement (a user-visible behavior or a hard infra contract, not a rename).
 4. Classify **conservatively** (see scoring). File existence is not COMPLETED.
@@ -144,6 +144,10 @@ Commit burst: reset a 10-minute timer on every non-ignored commit; one increment
   dashboard/data.js
 ```
 
+Written by the hook and the watcher, not by the model: `pending`,
+`last-commit-ts`, `review-due`, plus executable copies of `watch.sh`,
+`pending-ready.sh` and `collect-activity.py`.
+
 ## Commands
 
 - `dashproject init` — bootstrap + README guidelines
@@ -158,7 +162,7 @@ Commit burst: reset a 10-minute timer on every non-ignored commit; one increment
 ## Say this to the user
 
 ```
-PROGRESS 64.8%   PRECISION 94%
+PROGRESS 62.4%   PRECISION 94%
 172 COMPLETED (151 accepted / 21 declared) · 14 IN_PROGRESS · 101 PLANNED
 +7 completed this burst   BASE abc123 → HEAD jkl012
 scope 287 → 287

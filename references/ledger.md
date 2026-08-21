@@ -73,7 +73,7 @@ totals:
   planned: 101
   unknown_evidence: 40
   withdrawn: 0
-progress: 64.8
+progress: 62.4
 precision:
   overall: 91
   clarity: 92
@@ -90,7 +90,7 @@ level: incremental
 model: sonnet
 base: abc123
 head: jkl012
-progress: 64.8
+progress: 62.4
 precision: 91
 baseline_confidence: null    # set only on the bootstrap snapshot
 scope:

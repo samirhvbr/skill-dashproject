@@ -3,7 +3,7 @@
 **Inteligência de progresso baseada em evidências para projetos desenvolvidos com agentes de IA.**
 
 Skill: `skill-dashproject`  
-Versão: 0.2 (Reliable Requirement Tracking)
+Versão: 0.3 (Reliable Requirement Tracking)
 
 O DASHPROJECT não pergunta ao agente quanto o projeto está pronto. Ele **mede** o estado dos requisitos.
 
@@ -13,14 +13,14 @@ O DASHPROJECT não pergunta ao agente quanto o projeto está pronto. Ele **mede*
 Um requisito só assume **0%, 50% ou 100%**. Não existe “63% desta feature”.
 
 ```
-R001  100%
-R002  100%
+REQ-001  100%
+REQ-002  100%
 …
-R101  100%
-R102   50%   ← em desenvolvimento
-R103    0%
+REQ-101  100%
+REQ-102   50%   ← em desenvolvimento
+REQ-103    0%
 …
-R287    0%
+REQ-287    0%
 
 progress = (101×100 + 1×50 + 185×0) / 287  →  35,4%
 ```
@@ -218,24 +218,65 @@ Modelo padrão: Sonnet no incremental. Opus (ou o que estiver em `config.yaml`) 
 
 ---
 
+## Documentação
+
+| Página | Quando ler |
+|---|---|
+| [docs/instalacao.md](docs/instalacao.md) | Instalar a skill, o hook e o watcher |
+| [docs/uso.md](docs/uso.md) | Comandos do dia a dia e o ciclo de trabalho |
+| [docs/arquitetura.md](docs/arquitetura.md) | Como as peças se encaixam e por quê |
+| [docs/glossario.md](docs/glossario.md) | progress, precision, completion, knownness |
+| [docs/troubleshooting.md](docs/troubleshooting.md) | Quando o hook, o watch ou o review não fazem o esperado |
+| [docs/adr/](docs/adr/) | Decisões de arquitetura e o motivo delas |
+| [docs/padrao-documentacao.md](docs/padrao-documentacao.md) | O padrão que este repositório segue |
+| [CONTRIBUTING.md](CONTRIBUTING.md) | Contribuir, testar e publicar release |
+
+Verificação automática do padrão:
+
+```bash
+scripts/check-docs.sh
+```
+
+---
+
 ## Árvore desta skill
 
 ```
 skill-dashproject/
-├── SKILL.md                          # protocolo do auditor
+├── SKILL.md                          # protocolo do auditor (prompt, inglês)
 ├── README.md                         # este arquivo
-├── references/
+├── CLAUDE.md                         # contexto operacional para agentes
+├── CONTRIBUTING.md                   # como contribuir e checklist de PR
+├── CHANGELOG.md                      # histórico por versão
+├── LICENSE                           # MIT
+├── references/                       # carregado sob demanda pelo agente
 │   ├── scoring.md                    # 0/50/100, precision, escopo
 │   ├── ledger.md                     # schemas YAML
 │   ├── cycles.md                     # bootstrap, burst, modelos
-│   └── commit-protocol.md            # parse do commit
+│   ├── commit-protocol.md            # parse do commit
+│   └── activity.md                   # atividade Git ≠ progresso
+├── docs/                             # documentação humana (PT-BR)
+│   ├── instalacao.md
+│   ├── uso.md
+│   ├── arquitetura.md
+│   ├── padrao-documentacao.md
+│   ├── glossario.md
+│   ├── troubleshooting.md
+│   └── adr/                          # decisões de arquitetura
 ├── scripts/
-│   ├── install-git-hook.sh
-│   ├── post-commit.sh
-│   └── pending-ready.sh
-└── assets/
-    ├── templates/                    # copiados para .dashproject/
-    └── dashboard/                    # index.html estático
+│   ├── install-git-hook.sh           # instala/atualiza o bloco marcado
+│   ├── hook-block.sh                 # o bloco inserido no post-commit
+│   ├── post-commit.sh                # equivalente avulso do bloco
+│   ├── pending-ready.sh              # 0 = review devido, 2 = no debounce
+│   ├── watch.sh                      # watcher de debounce (sem LLM)
+│   ├── collect-activity.py           # atividade do repositório (sem LLM)
+│   ├── check-docs.sh                 # consistência da documentação
+│   └── build-release.sh              # empacota em dist/
+├── assets/
+│   ├── templates/                    # copiados para .dashproject/
+│   └── dashboard/                    # index.html + data.js + data.json
+├── .claude/                          # settings e comandos do Claude Code
+└── .continue/                        # config e regras do Continue.dev
 ```
 
 No repositório alvo o auditor cria:
@@ -264,17 +305,30 @@ No repositório alvo o auditor cria:
 
 ## Roadmap
 
-| Versão | Foco |
-|---|---|
-| **v0.1** | Bootstrap, 0/50/100, debounce, commits com REQ, dashboard, snapshots, precision |
-| **v0.2** | Bootstrap conservador, completion declared/accepted/rejected, progress derivado, hook composto, watch, atividade Git |
-| v0.2 | Histórico/Gantt por requisito, rejeições mais ricas, regressão explícita |
-| v0.3 | Drift de spec/doc, ADRs, dependências entre requisitos |
-| v0.4 | Release readiness, riscos |
-| v1.0 | Project Intelligence Dashboard estável para engenharia assistida por agentes |
+| Versão | Estado | Foco |
+|---|---|---|
+| v0.1 | entregue | Bootstrap, 0/50/100, debounce, commits com REQ, dashboard, snapshots, precision |
+| v0.2 | entregue | Bootstrap conservador, completion declared/accepted/rejected, progress derivado, hook composto, watch, atividade Git |
+| **v0.3** | **atual** | Histórico/Gantt por requisito, rejeições mais ricas, regressão explícita, documentação padronizada |
+| v0.4 | planejado | Drift de spec/doc, ADRs, dependências entre requisitos |
+| v0.5 | planejado | Release readiness, riscos |
+| v1.0 | planejado | Project Intelligence Dashboard estável para engenharia assistida por agentes |
+
+---
+
+## Empacotamento
+
+O `.zip` de distribuição **não** é versionado. Gere sob demanda:
+
+```bash
+scripts/build-release.sh          # versão lida de SKILL.md
+scripts/build-release.sh 0.4      # versão explícita
+# → dist/skill-dashproject_v0.4.zip
+```
 
 ---
 
 ## Licença
 
-MIT (skill). O software auditado permanece sob a licença do repositório alvo.
+MIT — veja [LICENSE](LICENSE). O software auditado permanece sob a licença do
+repositório alvo.
