@@ -30,5 +30,22 @@ window.DASHPROJECT_DATA = {
   "divergences": [],
   "rejected_claims": [],
   "regressions": [],
-  "history": []
+  "history": [],
+  "activity": {
+    "current": { "files": 0, "directories": 0, "loc": null },
+    "git": { "commits": 0, "contributors": 0, "active_days": 0 },
+    "week": {
+      "files_created": 0,
+      "files_deleted": 0,
+      "files_modified": 0,
+      "churn": 0,
+      "directories_created": 0,
+      "commits": 0,
+      "requirements_completed": 0,
+      "requirements_started": 0,
+      "created_by_kind": {}
+    },
+    "growth": [],
+    "pulse_note": null
+  }
 };

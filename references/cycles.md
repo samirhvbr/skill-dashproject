@@ -25,6 +25,8 @@ Input: burst commits + named ledger rows. Do not reread the whole repo.
 
 Apply status + `completion` from scoring. `test`/`docs` may upgrade `declared` → `accepted`.
 
+On every bootstrap and review, run `collect-activity.py` (git-tracked files only). Activity never changes requirement status. See [activity.md](activity.md).
+
 ## Watch
 
 `dashproject watch` runs [scripts/watch.sh](../scripts/watch.sh). It only writes `.dashproject/review-due`. Optional `review_notify` in config is a local command (e.g. `systemctl --user start …`); it must not be treated as “call the model”.

@@ -128,12 +128,29 @@ WATCH opcional (10 min) → review-due   — não chama o modelo
      ▼
 REVIEW incremental  →  só os REQ citados + diff
                   →  declared | accepted | rejected
+                  →  collect-activity.py (git, sem LLM)
      │
      ▼
 SNAPSHOT + dashboard/index.html
 ```
 
-O review incremental **não** relê os 287 requisitos. É isso que segura o custo de tokens.
+O review incremental **não** relê os 287 requisitos. Atividade do repositório sai do Git, não da prosa do agente.
+
+---
+
+## Atividade do repositório ≠ progresso
+
+`git ls-files` / `git log` alimentam o pulse. `node_modules` e afins não entram.
+
+| | Progresso | Atividade |
+|---|---|---|
+| Fonte | requisitos 0/50/100 | arquivos e commits rastreados |
+| Esta semana | +18 COMPLETED | +310 files, churn 859 |
+| Pode ser alto juntos | sim | um refactor gera muita atividade e 0% de progresso |
+
+LOC é opcional (`activity.loc: false`). Nunca vira %.
+
+Script: [scripts/collect-activity.py](scripts/collect-activity.py).
 
 ---
 
@@ -194,7 +211,8 @@ Comandos:
 | `dashproject dashboard` | Regenera o HTML a partir do ledger |
 | `dashproject hook` | Insere/atualiza o bloco no `post-commit` |
 | `dashproject watch` | Watcher de debounce (grava `review-due`, sem LLM) |
-| `dashproject status` | Progresso, precision, declared/accepted, escopo, delta |
+| `dashproject activity` | Só o snapshot Git de arquivos/churn |
+| `dashproject status` | Progresso, precision, pulse, escopo, delta |
 
 Modelo padrão: Sonnet no incremental. Opus (ou o que estiver em `config.yaml`) no bootstrap / deep / release. Provedor é configurável (`anthropic`, `ollama`, …).
 
@@ -249,7 +267,7 @@ No repositório alvo o auditor cria:
 | Versão | Foco |
 |---|---|
 | **v0.1** | Bootstrap, 0/50/100, debounce, commits com REQ, dashboard, snapshots, precision |
-| **v0.2** | Bootstrap conservador, completion declared/accepted/rejected, progress derivado, hook composto, watch |
+| **v0.2** | Bootstrap conservador, completion declared/accepted/rejected, progress derivado, hook composto, watch, atividade Git |
 | v0.2 | Histórico/Gantt por requisito, rejeições mais ricas, regressão explícita |
 | v0.3 | Drift de spec/doc, ADRs, dependências entre requisitos |
 | v0.4 | Release readiness, riscos |

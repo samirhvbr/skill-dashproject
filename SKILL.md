@@ -1,6 +1,6 @@
 ---
 name: skill-dashproject
-description: Evidence-based project progress auditor (DASHPROJECT). Use when the user asks for DASHPROJECT, requirement map from docs, 0/50/100 progress, completion declared/accepted/rejected, measurement precision, commit guidelines, hook install, dashproject watch, Gantt, or a progress dashboard. Bootstrap is conservative. Incremental review after a 10-minute commit burst only applies declared REQ ids. Status is the source of truth. Progress is derived. Never invent intra-requirement percentages.
+description: Evidence-based project progress auditor (DASHPROJECT). Use when the user asks for DASHPROJECT, requirement map from docs, 0/50/100 progress, completion declared/accepted/rejected, measurement precision, repository activity, git file growth, project pulse, churn, commit guidelines, hook install, dashproject watch, Gantt, or a progress dashboard. Bootstrap is conservative. Incremental review after a 10-minute commit burst only applies declared REQ ids. Status is the source of truth. Progress is derived. File counts are activity, never progress.
 license: MIT
 metadata:
   product: DASHPROJECT
@@ -25,12 +25,15 @@ Do not store `progress` on the ledger row. Derive it from `status`.
 
 `.dashproject/` is an observer, not canonical docs. Coding agents must not edit the ledger to inflate progress.
 
-Read [references/scoring.md](references/scoring.md), [references/ledger.md](references/ledger.md), [references/cycles.md](references/cycles.md), and [references/commit-protocol.md](references/commit-protocol.md) when needed.
+Read [references/scoring.md](references/scoring.md), [references/ledger.md](references/ledger.md), [references/cycles.md](references/cycles.md), [references/commit-protocol.md](references/commit-protocol.md), and [references/activity.md](references/activity.md) when needed.
+
+Progress and activity are independent. Never raise or lower % because files were added.
 
 ## When this skill is active
 
 - First run (`bootstrap`) — write the requirement map from existing documentation
 - Progress, precision, dashboard, scope change, gaps
+- Repository activity, pulse, churn, file/folder growth
 - Pending review after the 10-minute commit burst
 - Install hook or inject commit guidelines into `README.md`
 
@@ -75,8 +78,9 @@ Do not start from commits. Start from documentation.
 3. Write `.dashproject/requirements/requirements.yaml` — one row per testable requirement (a user-visible behavior or a hard infra contract, not a rename).
 4. Classify **conservatively** (see scoring). File existence is not COMPLETED.
 5. Snapshot baseline scope, progress, precision, and `baseline_confidence`.
-6. Append commit guidelines to project `README.md`. Do not rewrite the rest of the README.
-7. Generate the static dashboard. Offer `dashproject hook` and `dashproject watch`.
+6. Run [scripts/collect-activity.py](scripts/collect-activity.py) → `.dashproject/activity/`.
+7. Append commit guidelines to project `README.md`. Do not rewrite the rest of the README.
+8. Generate the static dashboard (progress + activity). Offer `dashproject hook` and `dashproject watch`.
 
 Baseline % is a conservative reading of already-done scope, not "the project started today". Prefer under-count. Record `baseline_confidence` on that snapshot only.
 
@@ -90,7 +94,8 @@ Token budget is the point. Do **not** reread all requirements.
 4. Short validation against the diff only (see scoring). Apply status + `completion`. Never write a `progress` field.
 5. Update `commits`, `verification`, `evidence.knownness`, `confidence`.
 6. Recompute overall from statuses. Recompute precision.
-7. Snapshot, delta, dashboard. Unlock. Remove `pending` / `review-due` after a successful review.
+7. Run `collect-activity.py` (git only). Merge into the dashboard. Do not ask the implementer how many files they created.
+8. Snapshot, delta, dashboard. Unlock. Remove `pending` / `review-due` after a successful review.
 
 `feat` / `fix` may change status. `test` / `docs` only change verification/confidence. `refactor` / `chore` do not change 0/50/100 unless they also declare a req status.
 
@@ -129,6 +134,8 @@ Commit burst: reset a 10-minute timer on every non-ignored commit; one increment
   analysis/latest.yaml
   analysis/history/<iso>.yaml
   analysis/divergences.yaml
+  activity/repository.json
+  activity/history/YYYY-MM-DD.json
   agent-docs/project-state.md
   agent-docs/implementation-map.md
   agent-docs/gap-analysis.md
@@ -142,10 +149,11 @@ Commit burst: reset a 10-minute timer on every non-ignored commit; one increment
 - `dashproject init` — bootstrap + README guidelines
 - `dashproject review` — incremental
 - `dashproject deep` — rediscover reqs / precision only when asked
-- `dashproject dashboard` — regenerate from ledger
+- `dashproject dashboard` — regenerate from ledger + activity
 - `dashproject hook` — install or refresh the marked post-commit block
 - `dashproject watch` — start the debounce watcher (optional, no LLM)
-- `dashproject status` — print progress, precision, completion breakdown, scope, delta
+- `dashproject activity` — refresh git activity only
+- `dashproject status` — print progress, precision, completion breakdown, scope, pulse
 
 ## Say this to the user
 
@@ -154,6 +162,7 @@ PROGRESS 64.8%   PRECISION 94%
 172 COMPLETED (151 accepted / 21 declared) · 14 IN_PROGRESS · 101 PLANNED
 +7 completed this burst   BASE abc123 → HEAD jkl012
 scope 287 → 287
+PULSE  1842 files  +310 this week  71 commits  churn 859
 rejected: REQ-118 (diff unrelated)
 ```
 

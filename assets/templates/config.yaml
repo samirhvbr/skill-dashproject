@@ -13,6 +13,11 @@ analysis:
 
 review_notify: ""
 
+activity:
+  enabled: true
+  loc: false
+  weeks: 8
+
 precision_weights:
   clarity: 25
   granularity: 20

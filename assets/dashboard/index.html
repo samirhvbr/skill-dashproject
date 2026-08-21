@@ -62,6 +62,13 @@
     th, td { text-align: left; padding: 8px 6px; border-bottom: 1px solid var(--line); vertical-align: top; }
     th { color: var(--muted); font-weight: 500; }
     footer { padding: 20px 36px 40px; color: var(--muted); font-size: 12px; }
+    .stats { display: flex; flex-wrap: wrap; gap: 28px; }
+    .stat b { display: block; font-size: 32px; font-weight: 560; letter-spacing: -0.03em; }
+    .stat span { color: var(--muted); font-size: 12px; letter-spacing: 0.12em; text-transform: uppercase; }
+    .stat small { color: var(--gold); display: block; margin-top: 4px; }
+    .spark { display: flex; align-items: flex-end; gap: 4px; height: 72px; }
+    .spark i { flex: 1; background: var(--gold); opacity: 0.75; min-width: 6px; }
+    .kind { display: grid; gap: 6px; max-width: 480px; }
   </style>
 </head>
 <body>
@@ -101,6 +108,23 @@
   </section>
 
   <section>
+    <h2>Project structure</h2>
+    <div class="stats" id="struct"></div>
+    <p class="why" id="pulse-note"></p>
+  </section>
+
+  <section class="grid">
+    <div>
+      <h2>Growth (git-tracked files)</h2>
+      <div class="spark" id="spark"></div>
+    </div>
+    <div>
+      <h2>This week</h2>
+      <div class="kind" id="week"></div>
+    </div>
+  </section>
+
+  <section>
     <h2>Divergences</h2>
     <table>
       <thead><tr><th>Req</th><th>Tipo</th><th>Intended</th><th>Actual</th></tr></thead>
@@ -109,7 +133,7 @@
   </section>
 
   <footer>
-    Cada requisito vale 0, 50 ou 100. Progresso é a média. Precisão mede a qualidade da medição.
+    Cada requisito vale 0, 50 ou 100. Arquivos e churn são atividade do Git, não progresso.
     Declaração no commit é uma pretensão — o auditor valida. Observer: <code>.dashproject/</code>
   </footer>
 
@@ -175,6 +199,36 @@
       ["pill bad", (D.regressions || []).length + " regressions"]
     ];
     $("pills").innerHTML = pills.map(([cl, tx]) => `<div class="${cl}">${tx}</div>`).join("");
+
+    const A = D.activity || {};
+    const cur = A.current || {};
+    const wk = A.week || {};
+    $("struct").innerHTML = `
+      <div class="stat"><b>${(cur.files || 0).toLocaleString("pt-BR")}</b><span>files</span><small>+${wk.files_created || 0} this week</small></div>
+      <div class="stat"><b>${(cur.directories || 0).toLocaleString("pt-BR")}</b><span>directories</span><small>+${wk.directories_created || 0} this week</small></div>
+      <div class="stat"><b>${(A.git && A.git.commits) || 0}</b><span>commits</span><small>${wk.commits || 0} this week</small></div>
+      <div class="stat"><b>${wk.churn || 0}</b><span>churn</span><small>${wk.files_modified || 0} modified · ${wk.files_deleted || 0} deleted</small></div>
+    `;
+    $("pulse-note").textContent = A.pulse_note || "Activity is git-tracked only. It is not project progress.";
+    const growth = A.growth || [];
+    const maxF = Math.max(1, ...growth.map((g) => g.files || 0));
+    $("spark").innerHTML = growth.map((g) => {
+      const h = Math.max(4, Math.round(((g.files || 0) / maxF) * 72));
+      return `<i title="${g.date} ${g.files}" style="height:${h}px"></i>`;
+    }).join("");
+    const kinds = wk.created_by_kind || {};
+    const weekRows = [
+      ["files created", wk.files_created],
+      ["files modified", wk.files_modified],
+      ["files deleted", wk.files_deleted],
+      ["commits", wk.commits],
+      ["requirements completed", wk.requirements_completed],
+      ["requirements started", wk.requirements_started],
+      ...Object.keys(kinds).map((k) => [k, kinds[k]])
+    ];
+    $("week").innerHTML = weekRows.map(([k, v]) =>
+      `<div class="dim"><span>${k}</span><strong>${v || 0}</strong></div>`
+    ).join("");
 
     $("divs").innerHTML = (D.divergences || []).map((x) => `
       <tr>
