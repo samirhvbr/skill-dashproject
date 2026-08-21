@@ -4,6 +4,41 @@ Formato [Keep a Changelog](https://keepachangelog.com/pt-BR/1.1.0/).
 Versão canônica em [`version.md`](version.md) — `SKILL.md`, os dois READMEs e o
 nome do pacote derivam dela.
 
+## [0.4.1] — 2026-08-21
+
+O modelo do auditor deixa de ser um comentário em YAML.
+
+### Corrigido
+
+- **`SKILL.md` passa a declarar `model: sonnet` e `effort: medium` no
+  frontmatter.** A medição no primeiro repositório real da casa (`~/x/EOP`)
+  mostrou que não existia agente algum e que a skill herdava o modelo da sessão —
+  Opus 5 em `effort: high`, o oposto do que `config.yaml` → `analysis.model`
+  declarava para o caminho incremental desde a v0.1. Declarado ≠ imposto.
+  [ADR-0011](docs/adr/0011-modelo-e-esforco-no-frontmatter.md).
+
+### Adicionado
+
+- `SKILL.md` §*Model and effort* — `analysis.escalate` **não se executa
+  sozinho**: uma skill não troca o próprio modelo no meio da execução, então
+  `bootstrap` / `deep` / `release` / `low_confidence` / `major_divergence` viram
+  **hand-off explícito** (para e pede a troca), nunca continuação silenciosa no
+  modelo rotineiro.
+- O campo `model` de `analysis/latest.yaml` e de `dashboard/data.json` passa a ser
+  o modelo **que de fato rodou**, nunca uma cópia de `config.yaml`; divergência
+  aparece na linha de relato.
+- `scripts/check-docs.sh` — perna nova: reprova se `SKILL.md` não declarar
+  `model`/`effort`, se o `effort` não for `low|medium|high|xhigh|max`, ou se o
+  `model` divergir de `assets/templates/config.yaml` → `analysis.model`.
+- `references/cycles.md` §*Model routing* alinhado ao ADR-0011.
+
+### Limite conhecido
+
+- `model` e `effort` são campos do Claude Code. O empacotador oficial da
+  Anthropic valida um conjunto fechado de 6 campos e falha duro com campo extra;
+  `scripts/build-release.sh` é um `zip` e não valida, então o pacote da casa
+  continua saindo. Registrado nas consequências do ADR-0011.
+
 ## [0.4.0] — 2026-08-21
 
 O renderer que faltava, e o repositório entrando no padrão de versionamento da

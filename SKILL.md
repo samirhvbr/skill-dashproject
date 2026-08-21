@@ -1,10 +1,12 @@
 ---
 name: skill-dashproject
+model: sonnet
+effort: medium
 description: Evidence-based project progress auditor (DASHPROJECT). Use when the user asks for DASHPROJECT, requirement map from docs, 0/50/100 progress, completion declared/accepted/rejected, measurement precision, repository activity, git file growth, project pulse, churn, commit guidelines, hook install, dashproject watch, Gantt, or a progress dashboard. Bootstrap is conservative. Incremental review after a 10-minute commit burst only applies declared REQ ids. Status is the source of truth. Progress is derived. File counts are activity, never progress.
 license: MIT
 metadata:
   product: DASHPROJECT
-  version: "0.4.0"
+  version: "0.4.1"
   type: auditor
 ---
 
@@ -117,6 +119,26 @@ Removing a req needs an explicit reason in `agent-docs/gap-analysis.md`. Do not 
 ## Measurement precision
 
 Score 0–100 from four factors (see scoring): clarity, granularity, commit traceability, documentation quality. Show it next to progress. A 73% with 57% precision is a weak number.
+
+## Model and effort
+
+The frontmatter pins the **routine** path: `model: sonnet`, `effort: medium`.
+That is the incremental review after a commit burst — frequent, cheap, reversible.
+It matches `config.yaml` → `analysis.model` ([ADR-0011](docs/adr/0011-modelo-e-esforco-no-frontmatter.md)).
+
+`analysis.escalate` is **not** self-executing. A skill cannot switch its own
+model mid-run, so escalation is a hand-off, never a silent continuation:
+
+- On `bootstrap`, `deep`, `release`, or a hit on `low_confidence` /
+  `major_divergence` (conditions in [references/cycles.md](references/cycles.md)),
+  **stop and tell the operator** to re-run under the escalated model.
+- Never write status from an escalation condition while running at the routine
+  model and call it escalated.
+
+Write the model **actually running** into `analysis/latest.yaml` → `model` and
+`dashboard/data.json` → `model` — never copy the value from `config.yaml`. If it
+differs from `analysis.model`, say so in the report line. A declared model that
+nothing observes is not a control.
 
 ## Debounce and watch
 

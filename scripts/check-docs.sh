@@ -50,6 +50,28 @@ for d in docs docs/adr .claude .continue scripts assets references; do
   [[ -d "$d" ]] && ok "$d/" || bad "$d/ está faltando"
 done
 
+# ---------------------------------------- modelo e esforço (ADR-0011)
+head_ "Modelo e esforço do auditor"
+skill_model=$(sed -n 's/^model: *//p' SKILL.md | head -1)
+skill_effort=$(sed -n 's/^effort: *//p' SKILL.md | head -1)
+cfg_model=$(sed -n 's/^  model: *//p' assets/templates/config.yaml | head -1)
+
+if [[ -z "$skill_model" ]]; then
+  bad "SKILL.md não declara 'model' no frontmatter — o auditor herdaria o modelo da sessão (ADR-0011)"
+elif [[ -z "$cfg_model" ]]; then
+  bad "assets/templates/config.yaml não declara analysis.model"
+elif [[ "$skill_model" != "$cfg_model" ]]; then
+  bad "SKILL.md model='$skill_model' × config.yaml analysis.model='$cfg_model' — têm de ser o mesmo string (ADR-0011 §2)"
+else
+  ok "model = $skill_model no frontmatter e no config.yaml"
+fi
+
+case "$skill_effort" in
+  low|medium|high|xhigh|max) ok "effort = $skill_effort" ;;
+  "")  bad "SKILL.md não declara 'effort' no frontmatter (ADR-0011)" ;;
+  *)   bad "SKILL.md effort='$skill_effort' não é low|medium|high|xhigh|max" ;;
+esac
+
 # --------------------------------------------- licença declarada × arquivo
 head_ "Licença"
 declared=$(sed -n 's/^license: *//p' SKILL.md | head -1)

@@ -1,6 +1,6 @@
 # Versão — skill-DASHPROJECT
 
-**Versão atual:** `0.4.0`
+**Versão atual:** `0.4.1`
 
 > Este arquivo é a **fonte da verdade** da versão do projeto. Qualquer lugar que
 > precise exibir ou reportar a versão extrai o **primeiro número semver (`X.Y.Z`)**
@@ -81,6 +81,19 @@ O changelog deste repositório vive em **[CHANGELOG.md](CHANGELOG.md)**, no form
 continua saindo daqui, que é a fonte da verdade; as **entradas** ficam lá.
 
 Entrega corrente:
+
+### `0.4.1` — 2026-08-21 — o modelo do auditor deixa de ser um comentário em YAML
+
+Bump de **`Z`** (gatilho: alteração no `SKILL.md`, o prompt do produto).
+`config.yaml` declarava `analysis.model: sonnet` desde a v0.1 e **nada impunha**:
+não havia agente, o frontmatter não declarava `model` nem `effort`, e a skill
+herdava o modelo da sessão. `SKILL.md` passa a declarar `model: sonnet` +
+`effort: medium`, o `check-docs.sh` reprova divergência entre os dois lugares, e
+o escalonamento vira hand-off explícito —
+[ADR-0011](docs/adr/0011-modelo-e-esforco-no-frontmatter.md).
+
+*Não* consome o `v0.5` do roadmap, que continua reservado para regressão
+explícita, timeline derivada de commits e burn-up histórico.
 
 ### `0.4.0` — 2026-08-21 — três saídas do mesmo snapshot, e o padrão da casa aplicado
 

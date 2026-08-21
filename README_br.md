@@ -3,7 +3,7 @@
 **Inteligência de progresso baseada em evidências para projetos desenvolvidos com agentes de IA.**
 
 Skill: `skill-dashproject`  
-Versão: 0.4.0 (Three Outputs, One Snapshot)
+Versão: 0.4.1 (Three Outputs, One Snapshot)
 
 🇬🇧 [Read in English](README.md) — o `README.md` em inglês é a porta de entrada do repositório.
 
