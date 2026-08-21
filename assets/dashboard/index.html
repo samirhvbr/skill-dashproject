@@ -144,7 +144,7 @@
     const pct = (n) => Math.round((Number(n) || 0) * 10) / 10;
 
     $("project-name").textContent = D.project || "uninitialized";
-    const progress = D.progress != null ? D.progress : D.overall;
+    const progress = D.progress;
     $("overall").innerHTML = pct(progress) + "<span>%</span>";
     $("overall-bar").style.width = Math.min(100, Number(progress) || 0) + "%";
     $("meta").innerHTML = [
@@ -173,7 +173,7 @@
         <div>${pct(e.progress)}%</div>
       </div>`).join("") || "<p class='why'>No epics yet. Run bootstrap.</p>";
 
-    const dims = D.precision_factors || D.dimensions || {};
+    const dims = D.precision_factors || {};
     $("dims").innerHTML = (Object.keys(dims).length
       ? Object.keys(dims).map((k) => `
       <div class="dim"><span>${k}</span><strong>${pct(dims[k])}%</strong></div>
@@ -186,7 +186,7 @@
         <div class="gantt-track">
           <div class="gantt-bar" style="left:${t.left || 0}%;width:${t.width || 10}%"></div>
         </div>
-      </div>`).join("") || "<p class='why'>Add start/due on epics in project.yaml to draw the Gantt.</p>";
+      </div>`).join("") || "<p class='why'>No timeline yet. Requirements appear here once commits declare them — the axis is derived from git history, not from planned dates.</p>";
 
     const dlt = D.delta || {};
     const sc = D.scope || {};

@@ -9,16 +9,10 @@ sources:
   tests:
     - tests
 
-tracking:
-  commits: true
-  tests: true
-  documentation: true
-  security: true
-  architecture: true
-
+# Epicos sao agrupadores, nunca pesos: o progresso do epico e a media dos
+# requisitos ativos dele. `due` e marco declarado e nunca entra em calculo —
+# o DASHPROJECT nao faz previsao de conclusao (ADR-0008).
 epics: []
   # - id: finance
   #   name: Financeiro
-  #   weight: 20
-  #   start: 2026-08-01
   #   due: 2026-10-15

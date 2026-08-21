@@ -31,6 +31,7 @@ window.DASHPROJECT_DATA = {
   "rejected_claims": [],
   "regressions": [],
   "history": [],
+  "_reserved": ["regressions", "history"],
   "activity": {
     "current": { "files": 0, "directories": 0, "loc": null },
     "git": { "commits": 0, "contributors": 0, "active_days": 0 },
