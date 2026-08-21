@@ -43,5 +43,7 @@ chmod +x "$hook"
 cp "$here/watch.sh" "$root/.dashproject/watch.sh"
 cp "$here/pending-ready.sh" "$root/.dashproject/pending-ready.sh"
 cp "$here/collect-activity.py" "$root/.dashproject/collect-activity.py"
-chmod +x "$root/.dashproject/watch.sh" "$root/.dashproject/pending-ready.sh" "$root/.dashproject/collect-activity.py"
+cp "$here/render-reports.py" "$root/.dashproject/render-reports.py"
+chmod +x "$root/.dashproject/watch.sh" "$root/.dashproject/pending-ready.sh" \
+  "$root/.dashproject/collect-activity.py" "$root/.dashproject/render-reports.py"
 echo "hook does not call a model; use dashproject watch or review"

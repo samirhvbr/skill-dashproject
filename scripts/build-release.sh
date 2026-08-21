@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # Empacota a skill para distribuição. Substitui o .zip que ficava commitado.
 #
-#   scripts/build-release.sh            # versão lida do SKILL.md
+#   scripts/build-release.sh            # versão lida do version.md
 #   scripts/build-release.sh 0.4        # versão explícita
 #
 # Saída: dist/skill-dashproject_v<versao>.zip (dist/ está no .gitignore)
@@ -12,9 +12,10 @@ cd "$root"
 
 version="${1:-}"
 if [[ -z "$version" ]]; then
-  version=$(sed -n 's/^  version: "\(.*\)"$/\1/p' SKILL.md | head -1)
+  # Fonte da verdade da casa: o primeiro semver de version.md.
+  version=$(grep -oE '[0-9]+\.[0-9]+\.[0-9]+' version.md 2>/dev/null | head -1)
 fi
-[[ -n "$version" ]] || { echo "não consegui determinar a versão (veja SKILL.md)" >&2; exit 1; }
+[[ -n "$version" ]] || { echo "não consegui determinar a versão (veja version.md)" >&2; exit 1; }
 
 command -v zip >/dev/null || { echo "'zip' não está instalado" >&2; exit 1; }
 
@@ -27,6 +28,8 @@ rm -f "$out"
 zip -q -r "$out" \
   SKILL.md \
   README.md \
+  README_br.md \
+  version.md \
   LICENSE \
   references \
   scripts \

@@ -1,169 +1,182 @@
 # DASHPROJECT
 
-**Inteligência de progresso baseada em evidências para projetos desenvolvidos com agentes de IA.**
+**Evidence-based progress intelligence for projects built with AI agents.**
 
 Skill: `skill-dashproject`  
-Versão: 0.3 (Documented Foundations)
+Version: 0.4.0 (Three Outputs, One Snapshot)
 
-O DASHPROJECT não pergunta ao agente quanto o projeto está pronto. Ele **mede** o estado dos requisitos.
+🇧🇷 [Leia em português](README_br.md)
 
-> Progresso = resultado da medição.  
-> Precision = qualidade dessa medição.
+DASHPROJECT does not ask the agent how done the project is. It **measures** the state of the requirements.
 
-Um requisito só assume **0%, 50% ou 100%**. Não existe “63% desta feature”.
+> Progress = the result of the measurement.  
+> Precision = the quality of that measurement.
+
+A requirement is only ever **0%, 50% or 100%**. There is no "63% of this feature".
 
 ```
 REQ-001  100%
 REQ-002  100%
 …
 REQ-101  100%
-REQ-102   50%   ← em desenvolvimento
+REQ-102   50%   ← in progress
 REQ-103    0%
 …
 REQ-287    0%
 
-progress = (101×100 + 1×50 + 185×0) / 287  →  35,4%
+progress = (101×100 + 1×50 + 185×0) / 287  →  35.4%
 ```
 
 ---
 
-## Para que serve
+## What it is for
 
-Em desenvolvimento com Claude Code (e agentes semelhantes), o implementador tende a declarar “feito”. O dashboard passa a ser um **observador independente**:
+When developing with Claude Code (and similar agents), the implementer tends to declare "done". The dashboard becomes an **independent observer**:
 
-1. lê a documentação e **cria o mapa de requisitos**
-2. ensina o agente a commitar com `REQ-NNN`
-3. depois de um burst de commits (debounce 10 min) atualiza só os requisitos declarados
-4. valida a declaração contra o diff
-5. regenera um dashboard HTML estático
+1. reads the documentation and **builds the requirement map**
+2. teaches the agent to commit with `REQ-NNN`
+3. after a commit burst (10-minute debounce) updates only the declared requirements
+4. validates the claim against the diff
+5. regenerates YAML + Markdown (GitHub) + HTML from the same snapshot
 
-`.dashproject/` não é documentação canônica do produto. É a visão do auditor.
+`.dashproject/` is not the product's canonical documentation. It is the auditor's view.
 
 ---
 
-## Seis pilares
+## Six pillars
 
-| Pilar | Função |
+| Pillar | Function |
 |---|---|
-| Requirement Discovery | Bootstrap a partir da documentação existente |
+| Requirement Discovery | Bootstrap from existing documentation |
 | Requirement Tracking | `PLANNED` 0 → `IN_PROGRESS` 50 → `COMPLETED` 100 |
-| Commit Protocol | O agente declara IDs e estado no commit |
-| Evidence Validation | A declaração é pretensão; o diff precisa ser plausível |
-| Measurement Precision | Clareza, granularidade, rastreio, qualidade da doc |
-| Dashboard | HTML estático — progresso, escopo, precisão, atividade |
+| Commit Protocol | The agent declares IDs and state in the commit |
+| Evidence Validation | A declaration is a claim; the diff has to be plausible |
+| Measurement Precision | Clarity, granularity, traceability, documentation quality |
+| Dashboard | Three views of the same snapshot — YAML, MD and HTML (progress, scope, precision, activity) |
 
 ---
 
-## Estados
+## States
 
-| Status | Progresso |
+| Status | Progress |
 |---|---|
 | `PLANNED` | 0 |
 | `IN_PROGRESS` | 50 |
 | `COMPLETED` | 100 |
 
-`status` é a fonte da verdade. O ledger **não** guarda `progress`.
+`status` is the source of truth. The ledger does **not** store `progress`.
 
-Em `COMPLETED` há um segundo campo:
+On `COMPLETED` there is a second field:
 
-| completion | Significado |
+| completion | Meaning |
 |---|---|
-| `declared` | Implementação plausível; testes/docs ainda fracos — continua 100% |
-| `accepted` | Implementação + testes |
-| `rejected` | Pretensão recusada; o status **não** fica COMPLETED |
+| `declared` | Plausible implementation; tests/docs still weak — still 100% |
+| `accepted` | Implementation + tests |
+| `rejected` | Claim refused; the status does **not** stay COMPLETED |
 
-Bootstrap é conservador: arquivo que “parece o requisito” não vira COMPLETED. Sem evidência forte → `IN_PROGRESS` ou `PLANNED` com `evidence.knownness: unknown`. O snapshot inicial grava `baseline_confidence`.
+Bootstrap is conservative: a file that "looks like the requirement" does not become COMPLETED. Without strong evidence → `IN_PROGRESS` or `PLANNED` with `evidence.knownness: unknown`. The initial snapshot records `baseline_confidence`.
 
 ---
 
 ## Measurement Precision
 
-O % de progresso pode ser aritmeticamente exato e mesmo assim pouco confiável.
+The progress % can be arithmetically exact and still be unreliable.
 
-| Fator | O que mede |
+| Factor | What it measures |
 |---|---|
-| Requirement clarity | Requisitos são comportamentos testáveis, com fonte na doc |
-| Granularity | Nem um produto inteiro num único REQ, nem um rename |
-| Commit traceability | Commits citam `REQ-` e o novo estado |
-| Documentation quality | Docs oficiais existem, estão estruturados e mapeiam o ledger |
+| Requirement clarity | Requirements are testable behaviors, sourced from the docs |
+| Granularity | Neither a whole product in a single REQ, nor a rename |
+| Commit traceability | Commits cite `REQ-` and the new state |
+| Documentation quality | Official docs exist, are structured, and map to the ledger |
 
-Pesos padrão: clareza 25, granularidade 20, **rastreio 35**, documentação 20. Sem `REQ-` nos commits a precision cai mesmo com docs perfeitos.
-
----
-
-## Escopo ≠ progresso
-
-Novos requisitos aumentam o denominador. Isso **não** é regressão.
-
-```
-287 reqs, 172 completos  →  60,0%
-+14 reqs no escopo
-301 reqs, 172 completos  →  57,1%   (o projeto cresceu)
-```
-
-IDs nunca são reciclados. Requisito removido fica `withdrawn: true` e sai do denominador.
+Default weights: clarity 25, granularity 20, **traceability 35**, documentation 20. Without `REQ-` in the commits, precision falls even with perfect docs.
 
 ---
 
-## Ciclo
+## Scope ≠ progress
+
+New requirements increase the denominator. That is **not** a regression.
 
 ```
-DOCUMENTAÇÃO
+287 reqs, 172 complete  →  60.0%
++14 reqs in scope
+301 reqs, 172 complete  →  57.1%   (the project grew)
+```
+
+IDs are never recycled. A removed requirement is marked `withdrawn: true` and leaves the denominator.
+
+---
+
+## Cycle
+
+```
+DOCUMENTATION
      │
      ▼
-BOOTSTRAP  →  requirements.yaml  +  seção de commit no README
+BOOTSTRAP  →  requirements.yaml  +  commit section in the README
      │
      ▼
-AGENTE DESENVOLVE
+AGENT DEVELOPS
      │
      ▼
 COMMIT feat(REQ-102): …  /  Status: IN_PROGRESS|COMPLETED
      │
      ▼
-HOOK (bloco marcado) → pending
+HOOK (marked block) → pending
      │
      ▼
-WATCH opcional (10 min) → review-due   — não chama o modelo
+OPTIONAL WATCH (10 min) → review-due   — never calls the model
      │
      ▼
-REVIEW incremental  →  só os REQ citados + diff
-                  →  declared | accepted | rejected
-                  →  collect-activity.py (git, sem LLM)
+INCREMENTAL REVIEW  →  only the cited REQs + diff
+                    →  declared | accepted | rejected
+                    →  collect-activity.py (git, no LLM)
      │
      ▼
 SNAPSHOT + dashboard/index.html
 ```
 
-O review incremental **não** relê os 287 requisitos. Atividade do repositório sai do Git, não da prosa do agente.
+The incremental review does **not** reread all 287 requirements. Repository activity comes from Git, not from the agent's prose.
 
 ---
 
-## Atividade do repositório ≠ progresso
+## Three outputs, one truth
 
-`git ls-files` / `git log` alimentam o pulse. `node_modules` e afins não entram.
-
-| | Progresso | Atividade |
+| Output | Who reads it | File |
 |---|---|---|
-| Fonte | requisitos 0/50/100 | arquivos e commits rastreados |
-| Esta semana | +18 COMPLETED | +310 files, churn 859 |
-| Pode ser alto juntos | sim | um refactor gera muita atividade e 0% de progresso |
+| YAML/JSON | agent and scripts | `analysis/latest.yaml`, `dashboard/data.json` |
+| Markdown | human on GitHub | `.dashproject/README.md`, `dashboard.md`, `history/daily/` |
+| HTML | human on the desktop | `dashboard.html` (`xdg-open` / `firefox`) |
 
-LOC é opcional (`activity.loc: false`). Nunca vira %.
+The renderer [scripts/render-reports.py](scripts/render-reports.py) generates the MD and the HTML from `data.json`. One markdown per **day**, not per commit. GitHub Pages is out of scope for now.
+
+---
+
+## Repository activity ≠ progress
+
+`git ls-files` / `git log` feed the pulse. `node_modules` and friends are excluded.
+
+| | Progress | Activity |
+|---|---|---|
+| Source | requirements 0/50/100 | tracked files and commits |
+| This week | +18 COMPLETED | +310 files, churn 859 |
+| Can both be high | yes | a refactor produces plenty of activity and 0% progress |
+
+LOC is optional (`activity.loc: false`). It never becomes a %.
 
 Script: [scripts/collect-activity.py](scripts/collect-activity.py).
 
 ---
 
-## Commit (obrigatório no repositório alvo)
+## Commit (required in the target repository)
 
-No `dashproject init` esta seção é **acrescentada** ao `README.md` do projeto alvo (o restante não é reescrito).
+On `dashproject init` this section is **appended** to the target project's `README.md` (the rest is not rewritten).
 
 ```
 feat(REQ-102): boleto generation
 ```
 
-Um `REQ` no subject, sem body, já significa `IN_PROGRESS`. Declarar o estado
-explicitamente também vale:
+One `REQ` in the subject, with no body, already means `IN_PROGRESS`. Declaring the state explicitly also works:
 
 ```
 feat(REQ-102): implement boleto generation
@@ -179,9 +192,7 @@ Requirements:
 - REQ-102: COMPLETED
 ```
 
-`COMPLETED` **só** sai do bloco `Requirements:`. O verbo do subject é
-decorativo — o parser não lê `complete`, `conclui`, `finaliza` nem `fecha`
-([ADR-0006](docs/adr/0006-declaracao-de-status-no-commit.md)).
+`COMPLETED` comes **only** from the `Requirements:` block. The subject verb is decorative — the parser does not read `complete`, `conclui`, `finaliza` or `fecha` ([ADR-0006](docs/adr/0006-declaracao-de-status-no-commit.md)).
 
 ```
 feat(REQ-102,REQ-103): boleto generation and cancellation
@@ -191,58 +202,74 @@ Requirements:
 - REQ-103: IN_PROGRESS
 ```
 
-- `feat` / `fix` — podem mudar 0 → 50 → 100
-- `test` / `docs` — não mudam 0/50/100; podem promover `declared` → `accepted`
-- `refactor` / `chore` — sem progresso, salvo se declararem um REQ
-- `chore(dashproject)` — reservado ao auditor (o hook ignora)
+- `feat` / `fix` — may move 0 → 50 → 100
+- `test` / `docs` — do not move 0/50/100; may promote `declared` → `accepted`
+- `refactor` / `chore` — no progress, unless they declare a REQ
+- `chore(dashproject)` — reserved for the auditor (the hook ignores it)
 
-Evite misturar dezenas de requisitos não relacionados (penalidade na precision).
+Avoid mixing dozens of unrelated requirements (precision penalty).
 
-Texto completo: [assets/templates/README-COMMIT-GUIDELINES.md](assets/templates/README-COMMIT-GUIDELINES.md) e [references/commit-protocol.md](references/commit-protocol.md).
+### Projects that do not use Conventional Commits
 
----
+A repository with its own commit standard keeps it. The `Requirements:` block in the **body** is enough to declare state — the subject is free text ([ADR-0010](docs/adr/0010-subject-livre-e-bloco-requirements.md)):
 
-## Como usar (Claude Code / agente)
+```
+1.63.3 - fecha a duplicata da colheita automatica
 
-1. Copie esta pasta para as skills do agente (`skill-dashproject/`).
-2. No repositório do produto: peça `dashproject init`.
-3. Instale o hook: `dashproject hook` (insere bloco marcado; não substitui hook existente; não chama o modelo).
-4. Opcional: `dashproject watch` ou o unit `dashproject-watch.service` no Debian.
-5. Desenvolva com a convenção de commit acima.
-6. Quando `review-due` existir (ou `pending-ready.sh` sair 0): `dashproject review`.
-7. Abra `.dashproject/dashboard/index.html`.
+Requirements:
+- REQ-014: COMPLETED
+```
 
-Comandos:
-
-| Comando | Efeito |
-|---|---|
-| `dashproject init` | Bootstrap: ledger + guidelines no README + dashboard |
-| `dashproject review` | Análise incremental do burst |
-| `dashproject deep` | Redescoberta de requisitos / precision (quando pedido) |
-| `dashproject dashboard` | Regenera o HTML a partir do ledger |
-| `dashproject hook` | Insere/atualiza o bloco no `post-commit` |
-| `dashproject watch` | Watcher de debounce (grava `review-due`, sem LLM) |
-| `dashproject activity` | Só o snapshot Git de arquivos/churn |
-| `dashproject status` | Progresso, precision, pulse, escopo, delta |
-
-Modelo padrão: Sonnet no incremental. Opus (ou o que estiver em `config.yaml`) no bootstrap / deep / release. Provedor é configurável (`anthropic`, `ollama`, …).
+Full text: [assets/templates/README-COMMIT-GUIDELINES.md](assets/templates/README-COMMIT-GUIDELINES.md) and [references/commit-protocol.md](references/commit-protocol.md).
 
 ---
 
-## Documentação
+## How to use it (Claude Code / agent)
 
-| Página | Quando ler |
+1. Copy this folder into the agent's skills (`skill-dashproject/`).
+2. In the product repository: ask for `dashproject init`.
+3. Install the hook: `dashproject hook` (inserts a marked block; does not replace an existing hook; never calls the model).
+4. Optional: `dashproject watch` or the `dashproject-watch.service` unit on Debian.
+5. Develop using the commit convention above.
+6. When `review-due` exists (or `pending-ready.sh` exits 0): `dashproject review`.
+7. Open `.dashproject/dashboard/index.html`.
+
+Commands:
+
+| Command | Effect |
 |---|---|
-| [docs/instalacao.md](docs/instalacao.md) | Instalar a skill, o hook e o watcher |
-| [docs/uso.md](docs/uso.md) | Comandos do dia a dia e o ciclo de trabalho |
-| [docs/arquitetura.md](docs/arquitetura.md) | Como as peças se encaixam e por quê |
+| `dashproject init` | Bootstrap: ledger + guidelines in the README + dashboard |
+| `dashproject review` | Incremental analysis of the burst |
+| `dashproject deep` | Requirement / precision rediscovery (on request) |
+| `dashproject dashboard` | Regenerates the HTML from the ledger |
+| `dashproject hook` | Inserts/updates the block in `post-commit` |
+| `dashproject watch` | Debounce watcher (writes `review-due`, no LLM) |
+| `dashproject activity` | Git snapshot of files/churn only |
+| `dashproject status` | Progress, precision, pulse, scope, delta |
+
+Default model: Sonnet for the incremental. Opus (or whatever is in `config.yaml`) for bootstrap / deep / release. The provider is configurable (`anthropic`, `ollama`, …).
+
+---
+
+## Documentation
+
+The human documentation is in PT-BR ([ADR-0005](docs/adr/0005-idioma-hibrido.md) — hybrid language is intentional).
+
+| Page | When to read it |
+|---|---|
+| [README_br.md](README_br.md) | This page, in Portuguese |
+| [docs/instalacao.md](docs/instalacao.md) | Installing the skill, the hook and the watcher |
+| [docs/uso.md](docs/uso.md) | Day-to-day commands and the work cycle |
+| [docs/arquitetura.md](docs/arquitetura.md) | How the pieces fit together and why |
 | [docs/glossario.md](docs/glossario.md) | progress, precision, completion, knownness |
-| [docs/troubleshooting.md](docs/troubleshooting.md) | Quando o hook, o watch ou o review não fazem o esperado |
-| [docs/adr/](docs/adr/) | Decisões de arquitetura e o motivo delas |
-| [docs/padrao-documentacao.md](docs/padrao-documentacao.md) | O padrão que este repositório segue |
-| [CONTRIBUTING.md](CONTRIBUTING.md) | Contribuir, testar e publicar release |
+| [docs/troubleshooting.md](docs/troubleshooting.md) | When the hook, watch or review misbehave |
+| [docs/adr/](docs/adr/) | Architecture decisions and their rationale |
+| [docs/padrao-documentacao.md](docs/padrao-documentacao.md) | The standard this repository follows |
+| [version.md](version.md) | Versioning convention and commit format |
+| [CHANGELOG.md](CHANGELOG.md) | History by version |
+| [CONTRIBUTING.md](CONTRIBUTING.md) | Contributing, testing and publishing a release |
 
-Verificação automática do padrão:
+Automatic standard check:
 
 ```bash
 scripts/check-docs.sh
@@ -250,48 +277,53 @@ scripts/check-docs.sh
 
 ---
 
-## Árvore desta skill
+## Tree of this skill
 
 ```
 skill-dashproject/
-├── SKILL.md                          # protocolo do auditor (prompt, inglês)
-├── README.md                         # este arquivo
-├── CLAUDE.md                         # contexto operacional para agentes
-├── CONTRIBUTING.md                   # como contribuir e checklist de PR
-├── CHANGELOG.md                      # histórico por versão
+├── SKILL.md                          # auditor protocol (prompt, English)
+├── README.md                         # this file (English, entry point)
+├── README_br.md                      # the same page in PT-BR
+├── CLAUDE.md                         # operational context for agents
+├── AGENTS.md                         # mirror of CLAUDE.md
+├── CONTRIBUTING.md                   # how to contribute and the PR checklist
+├── version.md                        # source of truth for the version
+├── CHANGELOG.md                      # history by version
 ├── LICENSE                           # MIT
-├── references/                       # carregado sob demanda pelo agente
-│   ├── scoring.md                    # 0/50/100, precision, escopo
-│   ├── ledger.md                     # schemas YAML
-│   ├── cycles.md                     # bootstrap, burst, modelos
-│   ├── commit-protocol.md            # parse do commit
-│   ├── activity.md                   # atividade Git ≠ progresso
-│   └── dashboard.md                  # contrato de projeção do snapshot
-├── docs/                             # documentação humana (PT-BR)
+├── references/                       # loaded on demand by the agent
+│   ├── scoring.md                    # 0/50/100, precision, scope
+│   ├── ledger.md                     # YAML schemas
+│   ├── cycles.md                     # bootstrap, burst, models
+│   ├── commit-protocol.md            # commit parsing
+│   ├── activity.md                   # Git activity ≠ progress
+│   ├── outputs.md                    # the three outputs
+│   └── dashboard.md                  # snapshot projection contract
+├── docs/                             # human documentation (PT-BR)
 │   ├── instalacao.md
 │   ├── uso.md
 │   ├── arquitetura.md
 │   ├── padrao-documentacao.md
 │   ├── glossario.md
 │   ├── troubleshooting.md
-│   └── adr/                          # decisões de arquitetura
+│   └── adr/                          # architecture decisions
 ├── scripts/
-│   ├── install-git-hook.sh           # instala/atualiza o bloco marcado
-│   ├── hook-block.sh                 # o bloco inserido no post-commit
-│   ├── post-commit.sh                # equivalente avulso do bloco
-│   ├── pending-ready.sh              # 0 = review devido, 2 = no debounce
-│   ├── watch.sh                      # watcher de debounce (sem LLM)
-│   ├── collect-activity.py           # atividade do repositório (sem LLM)
-│   ├── check-docs.sh                 # consistência da documentação
-│   └── build-release.sh              # empacota em dist/
+│   ├── install-git-hook.sh           # installs/updates the marked block
+│   ├── hook-block.sh                 # the block inserted into post-commit
+│   ├── post-commit.sh                # standalone equivalent of the block
+│   ├── pending-ready.sh              # 0 = review due, 2 = within debounce
+│   ├── watch.sh                      # debounce watcher (no LLM)
+│   ├── collect-activity.py           # repository activity (no LLM)
+│   ├── render-reports.py             # MD + HTML from data.json
+│   ├── check-docs.sh                 # documentation consistency
+│   └── build-release.sh              # packages into dist/
 ├── assets/
-│   ├── templates/                    # copiados para .dashproject/
+│   ├── templates/                    # copied into .dashproject/
 │   └── dashboard/                    # index.html + data.js + data.json
-├── .claude/                          # settings e comandos do Claude Code
-└── .continue/                        # config e regras do Continue.dev
+├── .claude/                          # Claude Code settings and commands
+└── .continue/                        # Continue.dev config and rules
 ```
 
-No repositório alvo o auditor cria:
+In the target repository the auditor creates:
 
 ```
 .dashproject/
@@ -300,48 +332,48 @@ No repositório alvo o auditor cria:
 ├── baseline/
 ├── requirements/
 ├── analysis/
-├── agent-docs/          # Reality Map (código) vs docs oficiais (esperado)
-└── dashboard/           # abrir index.html — sem npm, Docker ou banco
+├── agent-docs/          # Reality Map (code) vs official docs (expected)
+└── dashboard/           # open index.html — no npm, Docker or database
 ```
 
 ---
 
-## Isolamento
+## Isolation
 
-- Quem implementa escreve código, testes, `docs/` e commits declarados.
-- O DASHPROJECT só escreve `.dashproject/` e a seção de commit no README.
-- Snapshot do próprio auditor não conta como evidência de implementação.
-- Se o mesmo modelo acabou de escrever o código, a confidence daquele requisito cai.
+- Whoever implements writes code, tests, `docs/` and declared commits.
+- DASHPROJECT only writes `.dashproject/` and the commit section in the README.
+- The auditor's own snapshot does not count as evidence of implementation.
+- If the same model just wrote the code, that requirement's confidence drops.
 
 ---
 
 ## Roadmap
 
-| Versão | Estado | Foco |
+| Version | State | Focus |
 |---|---|---|
-| v0.1 | entregue | Bootstrap, 0/50/100, debounce, commits com REQ, dashboard, snapshots, precision |
-| v0.2 | entregue | *Reliable Requirement Tracking* — bootstrap conservador, completion declared/accepted/rejected, progress derivado, hook composto, watch, atividade Git |
-| **v0.3** | **atual** | *Documented Foundations* — padrão de documentação, ADRs 0001–0009, contratos de schema (evidência, delta, divergências, projeção do dashboard), default de subject no commit |
-| v0.4 | planejado | Regressão explícita, timeline derivada de commits, rejeições mais ricas, burn-up histórico |
-| v0.5 | planejado | Drift de spec/doc, dependências entre requisitos |
-| v0.6 | planejado | Release readiness e riscos. Qualidade e segurança **como eixo separado — nunca como dimensão de percentual** ([ADR-0007](docs/adr/0007-um-numero-e-tres-estados.md)) |
-| v1.0 | planejado | Project Intelligence Dashboard estável para engenharia assistida por agentes |
+| v0.1 | delivered | Bootstrap, 0/50/100, debounce, REQ commits, dashboard, snapshots, precision |
+| v0.2 | delivered | *Reliable Requirement Tracking* — conservative bootstrap, completion declared/accepted/rejected, derived progress, composite hook, watch, Git activity |
+| v0.3 | delivered | *Documented Foundations* — documentation standard, ADRs 0001–0009, schema contracts (evidence, delta, divergences, dashboard projection), subject default on commit |
+| **v0.4** | **current** | *Three Outputs, One Snapshot* — `render-reports.py`, house versioning (`version.md`), bilingual README, free subject + `Requirements:` block |
+| v0.5 | planned | Explicit regression, commit-derived timeline, richer rejections, historical burn-up |
+| v0.6 | planned | Spec/doc drift, dependencies between requirements |
+| v0.7 | planned | Release readiness and risk. Quality and security **as a separate axis — never as a percentage dimension** ([ADR-0007](docs/adr/0007-um-numero-e-tres-estados.md)) |
+| v1.0 | planned | Stable Project Intelligence Dashboard for agent-assisted engineering |
 
 ---
 
-## Empacotamento
+## Packaging
 
-O `.zip` de distribuição **não** é versionado. Gere sob demanda:
+The distribution `.zip` is **not** versioned. Generate it on demand:
 
 ```bash
-scripts/build-release.sh          # versão lida de SKILL.md
-scripts/build-release.sh 0.4      # versão explícita
-# → dist/skill-dashproject_v0.4.zip
+scripts/build-release.sh          # version read from version.md
+scripts/build-release.sh 0.4.0    # explicit version
+# → dist/skill-dashproject_v0.4.0.zip
 ```
 
 ---
 
-## Licença
+## License
 
-MIT — veja [LICENSE](LICENSE). O software auditado permanece sob a licença do
-repositório alvo.
+MIT — see [LICENSE](LICENSE). The audited software stays under the target repository's license.

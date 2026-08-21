@@ -43,6 +43,22 @@ Requirements:
 - REQ-103: IN_PROGRESS
 ```
 
+### Se este projeto tem padrão próprio de commit
+
+O subject acima é conveniência, **não** exigência. Projeto com padrão próprio
+mantém o padrão — o bloco `Requirements:` no corpo é declaração completa:
+
+```
+1.63.3 - fecha a duplicata da colheita automatica
+
+Requirements:
+- REQ-014: COMPLETED
+```
+
+Vale para os repositórios da casa, cujo padrão é `X.Y.Z - descrição em
+português` e que **proíbem** Conventional Commits. Sem type no subject, o estado
+declarado no bloco é que manda.
+
 ### Tipos
 
 - `feat` / `fix` — podem mudar o estado (0 → 50 → 100)

@@ -1,7 +1,54 @@
 # Changelog
 
 Formato [Keep a Changelog](https://keepachangelog.com/pt-BR/1.1.0/).
-Versionamento derivado de `SKILL.md` → `metadata.version`.
+Versão canônica em [`version.md`](version.md) — `SKILL.md`, os dois READMEs e o
+nome do pacote derivam dela.
+
+## [0.4.0] — 2026-08-21
+
+O renderer que faltava, e o repositório entrando no padrão de versionamento da
+casa. A partir daqui a versão é `X.Y.Z` e mora em `version.md`.
+
+### Adicionado
+
+- `scripts/render-reports.py` — projeta Markdown e HTML a partir de
+  `dashboard/data.json`, fechando o [ADR-0009](docs/adr/0009-tres-saidas-do-mesmo-snapshot.md),
+  que estava escrito e não implementado. Antes o modelo reescrevia os relatórios
+  à mão a cada review.
+- `references/outputs.md` — as três saídas e quem lê cada uma.
+- **`version.md`** — fonte da verdade da versão, no padrão dos projetos-irmãos
+  (AUDITOR, COMMITTER, LOOP): §1 convenção `X.Y.Z` com gatilhos de bump, §2
+  formato de commit obrigatório, §3 changelog.
+- **`README.md` em inglês** — porta de entrada do repositório público, padrão da
+  casa. O conteúdo PT-BR passou para `README_br.md`.
+- `AGENTS.md` — symlink para `CLAUDE.md`, como nos irmãos.
+- [ADR-0010](docs/adr/0010-subject-livre-e-bloco-requirements.md) — subject livre
+  e bloco `Requirements:` como única sintaxe obrigatória.
+
+### Corrigido
+
+- **`docs/padrao-documentacao.md` estava fora do padrão da casa em dois pontos**,
+  e como ele *é* o padrão, o erro se propagava: declarava `README.md` como PT-BR
+  (sem prever `README_br.md`) e elegia `SKILL.md` → `metadata.version` como
+  versão canônica, em formato de dois componentes.
+- **O protocolo de commit só documentava Conventional Commits** — a única sintaxe
+  que os repositórios da casa não podem produzir, já que o padrão deles é
+  `X.Y.Z - descrição` e o validador do skill-COMMITTER recusa `feat:`/`fix:`.
+  Nenhum projeto da casa era auditável. Ver ADR-0010.
+- `CLAUDE.md` prescrevia Conventional Commits para os commits **deste**
+  repositório, contra o padrão da casa. Passa a distinguir explicitamente as duas
+  gramáticas (commit deste repo × protocolo que o produto ensina).
+- `scripts/check-docs.sh` valida `version.md` como canônico, o par de READMEs e a
+  compilação de `render-reports.py`.
+- `scripts/build-release.sh` lê a versão de `version.md` e empacota
+  `README_br.md` e `version.md`.
+
+### Integração
+
+- A branch `claude/project-documentation-review-b70si2` (PR #1) entra na master.
+  O PR ficou em **draft** e nunca foi mergeado: os 10 commits da v0.3 viveram
+  fora da master enquanto ela recebia o trabalho do renderer, e as duas pontas
+  editaram `SKILL.md`, `README.md` e `references/cycles.md`.
 
 ## [0.3] — 2026-08-21
 

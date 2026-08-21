@@ -29,7 +29,7 @@ Also check for regression: a requirement that was COMPLETED in
 `analysis/history` and no longer is goes to `latest.yaml` → `regressions`. That
 is not the same as the percentage falling because scope grew.
 
-On every bootstrap and review, run `collect-activity.py` (git-tracked files only). Activity never changes requirement status. See [activity.md](activity.md).
+On every bootstrap and review, run `collect-activity.py` (git-tracked files only) then `render-reports.py`. Activity never changes requirement status. See [activity.md](activity.md), [outputs.md](outputs.md) and [dashboard.md](dashboard.md).
 
 Regenerate all three outputs from the same snapshot, per
 [dashboard.md](dashboard.md). One Markdown per review — never per commit.

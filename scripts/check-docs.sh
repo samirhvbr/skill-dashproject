@@ -16,27 +16,33 @@ head_() { printf "\n\033[1m%s\033[0m\n" "${1:-}"; }
 # ---------------------------------------------------------------- versão
 head_ "Versão"
 
+# version.md é a fonte da verdade (padrão da casa): o PRIMEIRO semver do arquivo.
+canon_v=$(grep -oE '[0-9]+\.[0-9]+\.[0-9]+' version.md 2>/dev/null | head -1)
 skill_v=$(sed -n 's/^  version: "\(.*\)"$/\1/p' SKILL.md | head -1)
-readme_v=$(sed -n 's/^Versão: \([0-9][0-9.]*\).*/\1/p' README.md | head -1)
+readme_v=$(sed -n 's/^Version: \([0-9][0-9.]*\).*/\1/p' README.md | head -1)
+readmebr_v=$(sed -n 's/^Versão: \([0-9][0-9.]*\).*/\1/p' README_br.md | head -1)
 chlog_v=$(sed -n 's/^## \[\([0-9][0-9.]*\)\].*/\1/p' CHANGELOG.md | head -1)
 
-if [[ -z "$skill_v" ]]; then
-  bad "SKILL.md não declara metadata.version"
+if [[ -z "$canon_v" ]]; then
+  bad "version.md não declara um semver X.Y.Z (fonte da verdade da casa)"
 else
-  ok "SKILL.md   version = $skill_v (canônica)"
-  [[ "$readme_v" == "$skill_v" ]] \
-    && ok "README.md  Versão  = $readme_v" \
-    || bad "README.md diz '$readme_v', SKILL.md diz '$skill_v'"
-  [[ "$chlog_v" == "$skill_v" ]] \
-    && ok "CHANGELOG  topo    = $chlog_v" \
-    || bad "CHANGELOG.md topo é '$chlog_v', SKILL.md diz '$skill_v'"
+  ok "version.md  Versão atual = $canon_v (canônica)"
+  cmp_v() {
+    [[ "$2" == "$canon_v" ]] \
+      && ok "$1 = $2" \
+      || bad "$1 diz '$2', version.md diz '$canon_v'"
+  }
+  cmp_v "SKILL.md    metadata.version" "$skill_v"
+  cmp_v "README.md   Version         " "$readme_v"
+  cmp_v "README_br.md Versão         " "$readmebr_v"
+  cmp_v "CHANGELOG.md topo           " "$chlog_v"
 fi
 
 # ------------------------------------------------ arquivos obrigatórios
 head_ "Arquivos obrigatórios na raiz"
-for f in README.md SKILL.md CLAUDE.md CONTRIBUTING.md CHANGELOG.md LICENSE \
-         .gitignore .editorconfig; do
-  [[ -f "$f" ]] && ok "$f" || bad "$f está faltando"
+for f in README.md README_br.md SKILL.md CLAUDE.md AGENTS.md CONTRIBUTING.md \
+         version.md CHANGELOG.md LICENSE .gitignore .editorconfig; do
+  [[ -e "$f" ]] && ok "$f" || bad "$f está faltando"
 done
 
 head_ "Pastas do padrão"
@@ -112,12 +118,14 @@ head_ "Sintaxe"
 for s in scripts/*.sh; do
   bash -n "$s" 2>/dev/null && ok "$s" || bad "$s tem erro de sintaxe"
 done
-if python3 -m py_compile scripts/collect-activity.py 2>/dev/null; then
-  ok "scripts/collect-activity.py"
-  rm -rf scripts/__pycache__
-else
-  bad "scripts/collect-activity.py não compila"
-fi
+for p in scripts/collect-activity.py scripts/render-reports.py; do
+  if python3 -m py_compile "$p" 2>/dev/null; then
+    ok "$p"
+  else
+    bad "$p não compila"
+  fi
+done
+rm -rf scripts/__pycache__
 
 # --------------------------------------------------------------- final
 echo

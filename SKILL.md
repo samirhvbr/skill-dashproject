@@ -4,7 +4,7 @@ description: Evidence-based project progress auditor (DASHPROJECT). Use when the
 license: MIT
 metadata:
   product: DASHPROJECT
-  version: "0.3"
+  version: "0.4.0"
   type: auditor
 ---
 
@@ -25,7 +25,9 @@ Do not store `progress` on the ledger row. Derive it from `status`.
 
 `.dashproject/` is an observer, not canonical docs. Coding agents must not edit the ledger to inflate progress.
 
-Read [references/scoring.md](references/scoring.md), [references/ledger.md](references/ledger.md), [references/cycles.md](references/cycles.md), [references/commit-protocol.md](references/commit-protocol.md), [references/activity.md](references/activity.md), and [references/dashboard.md](references/dashboard.md) when needed.
+Read [references/scoring.md](references/scoring.md), [references/ledger.md](references/ledger.md), [references/cycles.md](references/cycles.md), [references/commit-protocol.md](references/commit-protocol.md), [references/activity.md](references/activity.md), [references/outputs.md](references/outputs.md), and [references/dashboard.md](references/dashboard.md) when needed.
+
+YAML/JSON is the data. Markdown is the GitHub explanation. HTML is the visualization. All three come from the same snapshot.
 
 Progress and activity are independent. Never raise or lower % because files were added.
 
@@ -80,7 +82,8 @@ Do not start from commits. Start from documentation.
 5. Snapshot baseline scope, progress, precision, and `baseline_confidence`.
 6. Run [scripts/collect-activity.py](scripts/collect-activity.py) → `.dashproject/activity/`.
 7. Append commit guidelines to project `README.md`. Do not rewrite the rest of the README.
-8. Generate the static dashboard (progress + activity). Offer `dashproject hook` and `dashproject watch`.
+8. Merge snapshot + activity into `dashboard/data.json`. Run `render-reports.py` (README.md, dashboard.md, dashboard.html, daily history).
+9. Offer `dashproject hook` and `dashproject watch`.
 
 Baseline % is a conservative reading of already-done scope, not "the project started today". Prefer under-count. Record `baseline_confidence` on that snapshot only.
 
@@ -95,11 +98,13 @@ Token budget is the point. Do **not** reread all requirements.
 5. Update `commits`, `verification`, `evidence.knownness`, `evidence.implementation|tests|docs` pointers, `confidence`.
 6. Recompute overall from statuses. Recompute precision and the `coverage` counters. Record regressions.
 7. Run `collect-activity.py` (git only). Merge into the dashboard. Do not ask the implementer how many files they created.
-8. Snapshot, delta, dashboard — regenerate all three outputs from that one snapshot ([dashboard.md](references/dashboard.md)). Unlock. Remove `pending` / `review-due` after a successful review.
+8. Snapshot, `data.json`, then [scripts/render-reports.py](scripts/render-reports.py) — regenerate all three outputs from that one snapshot ([dashboard.md](references/dashboard.md)). Unlock. Remove `pending` / `review-due` after a successful review.
 
 `feat` / `fix` may change status. `test` / `docs` only change verification/confidence. `refactor` / `chore` do not change 0/50/100 unless they also declare a req status.
 
 Multiple IDs in one commit are allowed (`feat(REQ-102,REQ-103):`). Discourage unrelated batches (precision penalty if >5 reqs or mixed epics without explanation).
+
+The subject format is a convenience, not a requirement. A repository with its own commit standard keeps it — a free subject plus a `Requirements:` block in the body is a full declaration. With no recognizable type, read the per-type rules from the block. Traceability counts commits that declare a requirement, by either syntax. Detect the target's standard at bootstrap and write matching examples into its README. See [references/commit-protocol.md](references/commit-protocol.md) and [ADR-0010](docs/adr/0010-subject-livre-e-bloco-requirements.md).
 
 ## Scope vs progress
 
@@ -126,35 +131,37 @@ Commit burst: reset a 10-minute timer on every non-ignored commit; one increment
 
 ```
 .dashproject/
-  README.md
+  README.md                 # GitHub entry
+  dashboard.md              # official report
+  dashboard.html            # visual (static)
   config.yaml
   project.yaml
-  baseline/project-baseline.yaml
   requirements/requirements.yaml
   requirements/coverage.yaml
   analysis/latest.yaml
-  analysis/history/<iso>.yaml
+  analysis/latest.md
   analysis/divergences.yaml
   activity/repository.json
-  activity/history/YYYY-MM-DD.json
-  agent-docs/project-state.md
-  agent-docs/implementation-map.md
-  agent-docs/gap-analysis.md
+  history/daily/YYYY-MM-DD.md
+  history/daily/YYYY-MM-DD.json
+  agent-docs/...
   dashboard/index.html
   dashboard/data.json
   dashboard/data.js
 ```
 
+One markdown per day, not per commit. GitHub Pages is out of scope.
+
 Written by the hook and the watcher, not by the model: `pending`,
 `last-commit-ts`, `review-due`, plus executable copies of `watch.sh`,
-`pending-ready.sh` and `collect-activity.py`.
+`pending-ready.sh`, `collect-activity.py` and `render-reports.py`.
 
 ## Commands
 
 - `dashproject init` — bootstrap + README guidelines
 - `dashproject review` — incremental
 - `dashproject deep` — rediscover reqs / precision only when asked
-- `dashproject dashboard` — regenerate from ledger + activity
+- `dashproject dashboard` — regenerate HTML + MD from `data.json`
 - `dashproject hook` — install or refresh the marked post-commit block
 - `dashproject watch` — start the debounce watcher (optional, no LLM)
 - `dashproject activity` — refresh git activity only

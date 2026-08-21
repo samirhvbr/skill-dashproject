@@ -13,6 +13,7 @@ Registro das decisões caras de reverter, com o contexto que as motivou.
 | [0007](0007-um-numero-e-tres-estados.md) | Um número de progresso, três estados de requisito | Aceito |
 | [0008](0008-timeline-retrospectiva.md) | Timeline retrospectiva; sem previsão de conclusão | Aceito |
 | [0009](0009-tres-saidas-do-mesmo-snapshot.md) | YAML/Markdown/HTML projetam o mesmo snapshot | Aceito |
+| [0010](0010-subject-livre-e-bloco-requirements.md) | Subject livre; o bloco `Requirements:` é a única sintaxe obrigatória | Aceito |
 
 ## Convenções
 

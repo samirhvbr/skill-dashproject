@@ -32,6 +32,29 @@ Requirements:
 
 Aliases accepted when parsing: `Implements: REQ-102` plus `Status: REQ-102: COMPLETED`.
 
+## Free subject: projects with their own commit standard
+
+The subject format above is a **convenience, not a requirement**. A repository
+with its own commit standard keeps it — the `Requirements:` block in the body is
+the canonical declaration and is sufficient on its own.
+
+```
+1.63.3 - fecha a duplicata da colheita automatica
+
+Requirements:
+- REQ-014: COMPLETED
+```
+
+Detect the target repository's standard at bootstrap (its `git log` history, and
+whether a house-format `version.md` is present) and write the matching examples
+into its `README.md` guidelines section. Never ask a project to change its commit
+standard to be audited — see [ADR-0010](../docs/adr/0010-subject-livre-e-bloco-requirements.md).
+
+With no recognizable type in the subject, the per-type rules are read from the
+block instead: the declared status governs, and `verification` rises when the diff
+carries tests or docs. Traceability counts **commits that declare a requirement**,
+by either syntax — never the presence of Conventional Commits.
+
 ## Default when only the subject declares
 
 `feat` or `fix` with exactly one `REQ-NNN` in the subject and no body →
