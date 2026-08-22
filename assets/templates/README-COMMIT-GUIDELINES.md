@@ -52,8 +52,15 @@ mantém o padrão — o bloco `Requirements:` no corpo é declaração completa:
 1.63.3 - fecha a duplicata da colheita automatica
 
 Requirements:
-- REQ-014: COMPLETED
+- REQ-000: COMPLETED
 ```
+
+> **`REQ-000` no exemplo é deliberado: ele nunca existe.** Os IDs começam em
+> `REQ-001`, então nenhum requisito real pode ser declarado por engano de quem
+> copiar o bloco. Antes daqui o exemplo usava `REQ-014` — e no primeiro
+> repositório que rodou o bootstrap esse ID passou a existir de verdade
+> (`accounting/F6`, num módulo de dinheiro). Exemplo que aponta para artefato
+> real deixa de ser exemplo no dia em que o artefato nasce.
 
 Vale para os repositórios da casa, cujo padrão é `X.Y.Z - descrição em
 português` e que **proíbem** Conventional Commits. Sem type no subject, o estado

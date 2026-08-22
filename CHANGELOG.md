@@ -4,6 +4,18 @@ Formato [Keep a Changelog](https://keepachangelog.com/pt-BR/1.1.0/).
 Versão canônica em [`version.md`](version.md) — `SKILL.md`, os dois READMEs e o
 nome do pacote derivam dela.
 
+## [0.4.4] — 2026-08-22
+
+### Corrigido
+
+- **O exemplo do bloco `Requirements:` usava `REQ-014`, e num repositório real
+  esse ID existe.** No primeiro bootstrap de verdade (EOP, 214 requisitos) o
+  `REQ-014` virou `accounting/F6 — Lançamento registra a versão da regra`, num
+  módulo de **dinheiro**: quem copiasse o exemplo declararia `COMPLETED` um
+  requisito real e alheio. Passa a `REQ-000`, que **nunca** existe porque os IDs
+  começam em `REQ-001`, com a razão escrita ao lado. Exemplo que aponta para
+  artefato real deixa de ser exemplo no dia em que o artefato nasce.
+
 ## [0.4.3] — 2026-08-22
 
 O primeiro bootstrap real da skill, num repositório de verdade — e ele achou um
