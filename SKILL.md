@@ -6,7 +6,7 @@ description: Evidence-based project progress auditor (DASHPROJECT). Use when the
 license: MIT
 metadata:
   product: DASHPROJECT
-  version: "0.4.2"
+  version: "0.4.3"
   type: auditor
 ---
 

@@ -85,7 +85,11 @@ HEAD `{d.get("head") or "—"}` · snapshot #{d.get("snapshot") or "—"} · {d.
 """
 
 
-def dashboard_md(d: dict) -> str:
+def dashboard_md(d: dict, prefixo: str = "") -> str:
+    """O relatorio. `prefixo` corrige os links relativos quando o MESMO texto e
+    escrito em `history/daily/`, dois niveis abaixo — sem ele o link para o
+    `dashboard.html` aponta para dentro de `history/daily/`, e a L1 do docs-lint
+    do EOP acusou isso no primeiro bootstrap real (22/08)."""
     c = d.get("counts") or {}
     a = d.get("activity") or {}
     cur = a.get("current") or {}
@@ -157,7 +161,7 @@ Created this week by kind:
 
 {rej}
 
-YAML is the data. This file is the explanation. [dashboard.html](dashboard.html) is the visualization.
+YAML is the data. This file is the explanation. [dashboard.html]({prefixo}dashboard.html) is the visualization.
 """
 
 
@@ -200,7 +204,7 @@ def main() -> None:
     write(dash / "analysis" / "latest.md", latest_md(d))
 
     day = date.today().isoformat()
-    write(dash / "history" / "daily" / f"{day}.md", dashboard_md(d))
+    write(dash / "history" / "daily" / f"{day}.md", dashboard_md(d, "../../"))
     dest_json = dash / "history" / "daily" / f"{day}.json"
     dest_json.write_text(json.dumps(d, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
 

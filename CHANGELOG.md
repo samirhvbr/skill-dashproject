@@ -4,6 +4,22 @@ Formato [Keep a Changelog](https://keepachangelog.com/pt-BR/1.1.0/).
 Versão canônica em [`version.md`](version.md) — `SKILL.md`, os dois READMEs e o
 nome do pacote derivam dela.
 
+## [0.4.3] — 2026-08-22
+
+O primeiro bootstrap real da skill, num repositório de verdade — e ele achou um
+defeito do renderer.
+
+### Corrigido
+
+- **`render-reports.py` escrevia o relatório diário com links relativos do
+  diretório errado.** O `history/daily/AAAA-MM-DD.md` reusa o texto de
+  `dashboard.md` inteiro, e o rodapé aponta para `dashboard.html` por caminho relativo —
+  que, de dois níveis abaixo, resolve para `history/daily/dashboard.html` e não
+  existe. `dashboard_md()` passa a receber um prefixo, e o diário o chama com
+  `../../`. Achado pela `L1` do docs-lint do EOP no primeiro `dashproject init`
+  de verdade: nenhum teste da skill pegaria, porque ela não valida os links que
+  emite.
+
 ## [0.4.2] — 2026-08-21
 
 A `0.4.1` impôs o modelo rotineiro e deixou o **eixo** do escalonamento como
