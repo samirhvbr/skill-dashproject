@@ -6,7 +6,7 @@ description: Evidence-based project progress auditor (DASHPROJECT). Use when the
 license: MIT
 metadata:
   product: DASHPROJECT
-  version: "0.4.4"
+  version: "0.5.0"
   type: auditor
 ---
 
@@ -64,7 +64,7 @@ On `COMPLETED` also set `completion`:
 | completion | Meaning |
 |---|---|
 | `declared` | Claim accepted as plausible; tests/docs not fully verified |
-| `accepted` | Implementation + tests present |
+| `accepted` | Implementation + an executable proof that names the req — a green scenario, an ArchUnit rule, an architecture fitness or a CI leg; it must be **named, existing and green in CI** ([ADR-0013](docs/adr/0013-prova-que-nao-e-cenario.md)) |
 | `rejected` | Claim refused; **do not** leave status as COMPLETED |
 
 `verification` and `confidence` never change the 0/50/100 value.

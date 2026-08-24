@@ -1,6 +1,6 @@
 # Versão — skill-DASHPROJECT
 
-**Versão atual:** `0.4.4`
+**Versão atual:** `0.5.0`
 
 > Este arquivo é a **fonte da verdade** da versão do projeto. Qualquer lugar que
 > precise exibir ou reportar a versão extrai o **primeiro número semver (`X.Y.Z`)**

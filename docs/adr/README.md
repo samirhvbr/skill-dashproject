@@ -16,6 +16,7 @@ Registro das decisões caras de reverter, com o contexto que as motivou.
 | [0010](0010-subject-livre-e-bloco-requirements.md) | Subject livre; o bloco `Requirements:` é a única sintaxe obrigatória | Aceito |
 | [0011](0011-modelo-e-esforco-no-frontmatter.md) | Modelo e esforço no frontmatter; escalonamento é hand-off, não automático | Aceito |
 | [0012](0012-escalonamento-por-esforco.md) | Escalonamento muda o **esforço**, não o modelo (emenda ao 0011 §3) | Aceito |
+| [0013](0013-prova-que-nao-e-cenario.md) | A prova de `COMPLETED` **não é só cenário**: ArchUnit, fitness e perna de CI contam, sob a condição de serem **nomeada, existente e verde no CI** (emenda ao 0002 e ao `scoring.md`) | Aceito |
 
 ## Convenções
 

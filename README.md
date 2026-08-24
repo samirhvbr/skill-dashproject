@@ -3,7 +3,7 @@
 **Evidence-based progress intelligence for projects built with AI agents.**
 
 Skill: `skill-dashproject`  
-Version: 0.4.4 (Three Outputs, One Snapshot)
+Version: 0.5.0 (Proof, Not Just Scenarios)
 
 🇧🇷 [Leia em português](README_br.md)
 

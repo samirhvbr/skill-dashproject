@@ -4,6 +4,34 @@ Formato [Keep a Changelog](https://keepachangelog.com/pt-BR/1.1.0/).
 Versão canônica em [`version.md`](version.md) — `SKILL.md`, os dois READMEs e o
 nome do pacote derivam dela.
 
+## [0.5.0] — 2026-08-24
+
+### Mudado
+
+- **A prova de `COMPLETED` deixa de ser só cenário** ([ADR-0013](docs/adr/0013-prova-que-nao-e-cenario.md)).
+  Regra de **ArchUnit**, **fitness de arquitetura** e **perna de CI** passam a
+  contar como prova executável, sob uma condição de três partes: a prova tem de
+  ser **NOMEADA** (o ledger cita o artefato — classe, método ou código da
+  checagem, nunca "há testes"), **EXISTENTE** (está no disco hoje) e **VERDE NO
+  CI** (a esteira declarada a executa).
+
+  O que forçou a emenda foi **inconsistência medida, não teoria**: no primeiro
+  projeto grande auditado, quatro requisitos ficaram `PLANNED` com prova no
+  disco por essas classes — enquanto **seis linhas já eram `COMPLETED`
+  exatamente por elas**. O caso sem defesa: a mesma checagem provava um
+  invariante em três pacotes e valia `COMPLETED` em dois, `PLANNED` no terceiro.
+  O ledger já lia as três classes; o que faltava era a régua estar escrita.
+
+  O corte deixa de ser *"é cenário?"* e passa a ser *"é prova executável,
+  endereçável e executada?"*. **O eixo 0/50/100 não muda** e nenhum estado novo
+  nasce — o grau continua em `completion` (`declared` × `accepted`). E a parte
+  "EXISTENTE" tem caso real de estreia: uma spec que declarava uma fitness
+  **inexistente** — sem ela, viraria `accepted` por prova imaginária.
+
+- **Contradição entre requisitos irmãos vira achado.** Se o mesmo artefato prova
+  A e não é creditado a um B equivalente, o auditor diz qual par diverge em vez
+  de deixar os dois como estão.
+
 ## [0.4.4] — 2026-08-22
 
 ### Corrigido

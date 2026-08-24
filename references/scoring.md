@@ -46,7 +46,21 @@ Do **not** treat file existence as done.
 
 | Evidence | status | knownness | completion |
 |---|---|---|---|
-| Source + implementation that matches the req **and** tests that cover it | COMPLETED | known | accepted |
+| Source + implementation that matches the req **and** an executable proof that covers it | COMPLETED | known | accepted |
+
+**What counts as an executable proof** ([ADR-0013](../docs/adr/0013-prova-que-nao-e-cenario.md)):
+a green scenario that names the requirement — and also an **architecture rule**
+(ArchUnit and the like), an **architecture fitness function**, or a **CI leg**
+(a lint/check family the pipeline runs). The bar is not the format; it is that
+the proof be **NAMED** (the ledger cites the artefact — class, method or check
+code, never "there are tests"), **EXISTING** (it is on disk today) and **GREEN
+IN CI** (the declared pipeline runs it). A spec that names a fitness which does
+not exist yields `declared`, never `accepted`, and the gap goes to
+`analysis/divergences.yaml`.
+
+When the *same* artefact proves requirement A and is not credited to an
+equivalent requirement B, that contradiction is a finding: say which pair
+diverges instead of leaving both as they are.
 | Implementation files clearly for this req, tests missing or weak | IN_PROGRESS | partial | — |
 | Name coincidence, similar path, or only a mention in docs | PLANNED | unknown | — |
 | Nothing in the tree | PLANNED | unknown | — |
