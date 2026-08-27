@@ -1,6 +1,6 @@
 # Versão — skill-DASHPROJECT
 
-**Versão atual:** `0.5.0`
+**Versão atual:** `0.5.1`
 
 > Este arquivo é a **fonte da verdade** da versão do projeto. Qualquer lugar que
 > precise exibir ou reportar a versão extrai o **primeiro número semver (`X.Y.Z`)**
@@ -81,6 +81,17 @@ O changelog deste repositório vive em **[CHANGELOG.md](CHANGELOG.md)**, no form
 continua saindo daqui, que é a fonte da verdade; as **entradas** ficam lá.
 
 Entrega corrente:
+
+### `0.5.1` — 2026-08-27 — o auditor fecha a própria árvore
+
+Bump de **`Z`** (gatilhos: script novo, `SKILL.md`, regra em `references/**` e
+`assets/templates/config.yaml`, que é copiado para dentro do projeto auditado).
+
+O review passa a commitar o próprio snapshot com `chore(dashproject)` — o assunto
+que o hook ignora — e devolve a árvore limpa
+([ADR-0014](docs/adr/0014-auditor-fecha-a-propria-arvore.md)). Corrigido também o
+`install-git-hook.sh`, cujo caminho de *refresh* corrompia o hook silenciosamente.
+Detalhe no [CHANGELOG.md](CHANGELOG.md).
 
 ### `0.4.2` — 2026-08-21 — o escalonamento muda o esforço, não o modelo
 

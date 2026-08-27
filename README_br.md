@@ -3,7 +3,7 @@
 **Inteligência de progresso baseada em evidências para projetos desenvolvidos com agentes de IA.**
 
 Skill: `skill-dashproject`  
-Versão: 0.5.0 (A prova não é só cenário)
+Versão: 0.5.1 (A prova não é só cenário)
 
 🇬🇧 [Read in English](README.md) — o `README.md` em inglês é a porta de entrada do repositório.
 
@@ -208,7 +208,9 @@ Requirements:
 - `feat` / `fix` — podem mudar 0 → 50 → 100
 - `test` / `docs` — não mudam 0/50/100; podem promover `declared` → `accepted`
 - `refactor` / `chore` — sem progresso, salvo se declararem um REQ
-- `chore(dashproject)` — reservado ao auditor (o hook ignora)
+- `chore(dashproject)` — reservado ao auditor: é o assunto com que ele **commita o
+  próprio snapshot**, e o que o hook ignora. Usar esse prefixo no seu trabalho o
+  torna invisível para a auditoria.
 
 Evite misturar dezenas de requisitos não relacionados (penalidade na precision).
 
@@ -347,7 +349,10 @@ No repositório alvo o auditor cria:
 ## Isolamento
 
 - Quem implementa escreve código, testes, `docs/` e commits declarados.
-- O DASHPROJECT só escreve `.dashproject/` e a seção de commit no README.
+- O DASHPROJECT só escreve `.dashproject/` e a seção de commit no README — e
+  **commita isso, ele mesmo**, com `chore(dashproject)` e sem push
+  ([ADR-0014](docs/adr/0014-auditor-fecha-a-propria-arvore.md)). Auditor que deixa
+  arquivo sujo terceiriza o próprio commit para quem passar.
 - Snapshot do próprio auditor não conta como evidência de implementação.
 - Se o mesmo modelo acabou de escrever o código, a confidence daquele requisito cai.
 

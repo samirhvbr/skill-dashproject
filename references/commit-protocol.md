@@ -87,7 +87,12 @@ COMPLETED is a claim. The auditor sets `completion` to declared, accepted, or re
 
 ## Ignored
 
-- `chore(dashproject):` snapshots
+- `chore(dashproject):` snapshots — the auditor's own, written by
+  `commit-snapshot.sh` at the end of every review. The post-commit hook skips that
+  subject too, which is what keeps a review from arming the next one
+  ([ADR-0014](../docs/adr/0014-auditor-fecha-a-propria-arvore.md)). The prefix is
+  **reserved**: an implementer who borrows it makes their own work invisible to the
+  audit.
 - Merge commits unless they declare REQs
 
 ## Examples

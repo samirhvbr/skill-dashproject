@@ -17,6 +17,7 @@ Registro das decisões caras de reverter, com o contexto que as motivou.
 | [0011](0011-modelo-e-esforco-no-frontmatter.md) | Modelo e esforço no frontmatter; escalonamento é hand-off, não automático | Aceito |
 | [0012](0012-escalonamento-por-esforco.md) | Escalonamento muda o **esforço**, não o modelo (emenda ao 0011 §3) | Aceito |
 | [0013](0013-prova-que-nao-e-cenario.md) | A prova de `COMPLETED` **não é só cenário**: ArchUnit, fitness e perna de CI contam, sob a condição de serem **nomeada, existente e verde no CI** (emenda ao 0002 e ao `scoring.md`) | Aceito |
+| [0014](0014-auditor-fecha-a-propria-arvore.md) | O auditor commita o próprio snapshot e devolve a árvore limpa | Aceito |
 
 ## Convenções
 

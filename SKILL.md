@@ -6,7 +6,7 @@ description: Evidence-based project progress auditor (DASHPROJECT). Use when the
 license: MIT
 metadata:
   product: DASHPROJECT
-  version: "0.5.0"
+  version: "0.5.1"
   type: auditor
 ---
 
@@ -45,6 +45,7 @@ Progress and activity are independent. Never raise or lower % because files were
 
 - Implementer writes code, tests, official `docs/`, and **declared** commits.
 - DASHPROJECT writes only under `.dashproject/` plus a DASHPROJECT section in `README.md` (commit protocol).
+- DASHPROJECT **commits what it writes** — pathspec-limited, subject `chore(dashproject)`, never pushed ([ADR-0014](docs/adr/0014-auditor-fecha-a-propria-arvore.md)). An auditor that leaves its files dirty hands its own commit to whatever else commits in that repository, and that commit re-arms the hook.
 - A commit declaration is a **claim**. Status changes only after a short plausibility check.
 - COMPLETED without plausible implementation stays at the previous status. Set `completion: rejected` and flag.
 - COMPLETED with plausible implementation and tests missing becomes `COMPLETED` + `completion: declared` (still 100).
@@ -85,7 +86,8 @@ Do not start from commits. Start from documentation.
 6. Run [scripts/collect-activity.py](scripts/collect-activity.py) → `.dashproject/activity/`.
 7. Append commit guidelines to project `README.md`. Do not rewrite the rest of the README.
 8. Merge snapshot + activity into `dashboard/data.json`. Run `render-reports.py` (README.md, dashboard.md, dashboard.html, daily history).
-9. Offer `dashproject hook` and `dashproject watch`.
+9. Run [scripts/commit-snapshot.sh](scripts/commit-snapshot.sh) (installed as `.dashproject/commit-snapshot.sh`) — commits `.dashproject/` and leaves the tree clean.
+10. Offer `dashproject hook` and `dashproject watch`.
 
 Baseline % is a conservative reading of already-done scope, not "the project started today". Prefer under-count. Record `baseline_confidence` on that snapshot only.
 
@@ -101,6 +103,7 @@ Token budget is the point. Do **not** reread all requirements.
 6. Recompute overall from statuses. Recompute precision and the `coverage` counters. Record regressions.
 7. Run `collect-activity.py` (git only). Merge into the dashboard. Do not ask the implementer how many files they created.
 8. Snapshot, `data.json`, then [scripts/render-reports.py](scripts/render-reports.py) — regenerate all three outputs from that one snapshot ([dashboard.md](references/dashboard.md)). Unlock. Remove `pending` / `review-due` after a successful review.
+9. Run `.dashproject/commit-snapshot.sh`. It commits `.dashproject/` as `chore(dashproject): …` — the subject the hook ignores, so the review does not re-arm itself — and the tree goes back **clean**. Honors `analysis.auto_commit`. See [ADR-0014](docs/adr/0014-auditor-fecha-a-propria-arvore.md).
 
 `feat` / `fix` may change status. `test` / `docs` only change verification/confidence. `refactor` / `chore` do not change 0/50/100 unless they also declare a req status.
 
@@ -189,7 +192,14 @@ One markdown per day, not per commit. GitHub Pages is out of scope.
 
 Written by the hook and the watcher, not by the model: `pending`,
 `last-commit-ts`, `review-due`, plus executable copies of `watch.sh`,
-`pending-ready.sh`, `collect-activity.py` and `render-reports.py`.
+`pending-ready.sh`, `commit-snapshot.sh`, `collect-activity.py` and
+`render-reports.py`.
+
+Those three state files are rewritten by the hook **after every commit**, so the
+tree of a project that versions `.dashproject/` is dirty again the moment a commit
+lands. That is the loop [ADR-0014](docs/adr/0014-auditor-fecha-a-propria-arvore.md)
+closes on this side; a repository that also runs an automatic committer should keep
+`.dashproject/` out of its reach (in COMMITTER, `skip_paths` in `.committer.yml`).
 
 ## Commands
 
@@ -197,6 +207,7 @@ Written by the hook and the watcher, not by the model: `pending`,
 - `dashproject review` — incremental
 - `dashproject deep` — rediscover reqs / precision only when asked
 - `dashproject dashboard` — regenerate HTML + MD from `data.json`
+- `dashproject commit` — commit the current `.dashproject/` snapshot (part of `review`; the tree ends clean)
 - `dashproject hook` — install or refresh the marked post-commit block
 - `dashproject watch` — start the debounce watcher (optional, no LLM)
 - `dashproject activity` — refresh git activity only

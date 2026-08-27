@@ -24,8 +24,14 @@ if [[ ! -f "$hook" ]]; then
 else
   tmp=$(mktemp)
   if grep -q "$begin" "$hook" && grep -q "$end" "$hook"; then
-    awk -v b="$begin" -v e="$end" -v blk="$block" '
-      $0 == b { print blk; skip=1; next }
+    # The block goes through the environment, never through `awk -v`: -v processes
+    # escape sequences, so `chore\(dashproject\)*)` came out as
+    # `chore(dashproject)*)` and the rewritten hook died with a bash syntax error on
+    # every commit — the hook stops recording `pending` and the auditor is never
+    # armed again, silently. Only the refresh path was affected; a fresh install
+    # writes the block with printf.
+    DP_BLOCK="$block" awk -v b="$begin" -v e="$end" '
+      $0 == b { print ENVIRON["DP_BLOCK"]; skip=1; next }
       $0 == e { skip=0; next }
       skip { next }
       { print }
@@ -42,8 +48,10 @@ fi
 chmod +x "$hook"
 cp "$here/watch.sh" "$root/.dashproject/watch.sh"
 cp "$here/pending-ready.sh" "$root/.dashproject/pending-ready.sh"
+cp "$here/commit-snapshot.sh" "$root/.dashproject/commit-snapshot.sh"
 cp "$here/collect-activity.py" "$root/.dashproject/collect-activity.py"
 cp "$here/render-reports.py" "$root/.dashproject/render-reports.py"
 chmod +x "$root/.dashproject/watch.sh" "$root/.dashproject/pending-ready.sh" \
+  "$root/.dashproject/commit-snapshot.sh" \
   "$root/.dashproject/collect-activity.py" "$root/.dashproject/render-reports.py"
 echo "hook does not call a model; use dashproject watch or review"

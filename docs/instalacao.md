@@ -58,6 +58,25 @@ Rodar de novo **atualiza** o bloco em vez de duplicá-lo.
 
 O hook nunca chama um modelo. Ele só grava `.dashproject/pending` e o timestamp.
 
+### Se o projeto tem outra automação que commita sozinha
+
+O hook grava aqueles dois arquivos **depois** de cada commit. Num projeto que
+versiona `.dashproject/`, isso deixa a árvore suja no instante seguinte a qualquer
+commit — e quem commita por árvore suja (a skill **COMMITTER**, cron, um watcher de
+CI) vai empacotar o estado do auditor e rearmar o hook, num laço que se realimenta.
+
+Tire `.dashproject/` do alcance dela. Com o COMMITTER, é uma linha no marcador do
+projeto:
+
+```yaml
+# .committer.yml
+skip_paths: .dashproject/
+```
+
+Do lado de cá, `analysis.auto_commit: true` (padrão) faz o review fechar a própria
+árvore. As duas coisas são complementares — veja
+[ADR-0014](adr/0014-auditor-fecha-a-propria-arvore.md).
+
 ## 4. Watcher de debounce (opcional)
 
 ```bash

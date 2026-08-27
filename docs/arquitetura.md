@@ -47,6 +47,12 @@ commit ──▶ post-commit (bloco marcado)
             │  aplica status + completion
             ▼
         snapshot + collect-activity.py + dashboard
+            │
+            ▼
+        commit-snapshot.sh ──▶ commit `chore(dashproject): …`
+            │  só `.dashproject/`, sem push
+            ▼
+        post-commit vê o assunto e NÃO rearma · árvore limpa
 ```
 
 O watcher **não** invoca o modelo. Ele sinaliza. Quem invoca é a sessão do
@@ -57,7 +63,7 @@ agente ao encontrar `review-due` (ou `pending-ready.sh` saindo 0).
 | Ator | Pode escrever |
 |---|---|
 | Implementador | código, testes, `docs/` oficial, commits declarados |
-| DASHPROJECT | `.dashproject/**` e a seção de commit do `README.md` |
+| DASHPROJECT | `.dashproject/**` e a seção de commit do `README.md` — e **commita** isso, com `chore(dashproject)`, sem push ([ADR-0014](adr/0014-auditor-fecha-a-propria-arvore.md)) |
 
 O auditor nunca edita código-fonte, e o implementador nunca edita o ledger.
 Se o mesmo modelo escreveu o código e auditou o requisito, a `confidence`

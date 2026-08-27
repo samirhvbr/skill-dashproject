@@ -22,6 +22,28 @@ o resto do hook é preservado:
 scripts/install-git-hook.sh
 ```
 
+## Nasce um commit sozinho a cada tantos minutos, e o `pending` volta
+
+Sintoma: uma sequência de commits automáticos tocando só `.dashproject/`, cada um
+rearmando a revisão seguinte — inclusive com a máquina parada.
+
+O gatilho de quem commita sozinho (a skill **COMMITTER**, por exemplo) não é o
+commit: é a **árvore suja**. O hook grava `pending` e `last-commit-ts` *depois* de
+cada commit, então num projeto que versiona `.dashproject/` a árvore fica suja no
+instante seguinte a qualquer commit; o outro ciclo empacota aquilo, e o commit dele
+— que não começa com `chore(dashproject)` — rearma o hook.
+
+Duas metades resolvem, e as duas são necessárias:
+
+```bash
+grep -n auto_commit .dashproject/config.yaml   # true: o review fecha a árvore
+grep -n skip_paths .committer.yml              # .dashproject/ fora do stage do COMMITTER
+```
+
+A primeira fecha a árvore depois da revisão; a segunda cobre os 10 minutos de
+debounce e o caso em que a revisão não roda. Veja
+[ADR-0014](adr/0014-auditor-fecha-a-propria-arvore.md).
+
 ## `pending-ready.sh` sempre diz `wait`
 
 Ele compara `now - last-commit-ts` com `debounce_minutes`. Cada commit novo

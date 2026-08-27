@@ -3,7 +3,7 @@
 **Evidence-based progress intelligence for projects built with AI agents.**
 
 Skill: `skill-dashproject`  
-Version: 0.5.0 (Proof, Not Just Scenarios)
+Version: 0.5.1 (Proof, Not Just Scenarios)
 
 🇧🇷 [Leia em português](README_br.md)
 
@@ -205,7 +205,9 @@ Requirements:
 - `feat` / `fix` — may move 0 → 50 → 100
 - `test` / `docs` — do not move 0/50/100; may promote `declared` → `accepted`
 - `refactor` / `chore` — no progress, unless they declare a REQ
-- `chore(dashproject)` — reserved for the auditor (the hook ignores it)
+- `chore(dashproject)` — reserved for the auditor: it is the subject **it commits
+  its own snapshot with**, and the one the hook ignores. Borrow it and your work
+  goes invisible to the audit.
 
 Avoid mixing dozens of unrelated requirements (precision penalty).
 
@@ -341,7 +343,10 @@ In the target repository the auditor creates:
 ## Isolation
 
 - Whoever implements writes code, tests, `docs/` and declared commits.
-- DASHPROJECT only writes `.dashproject/` and the commit section in the README.
+- DASHPROJECT only writes `.dashproject/` and the commit section in the README —
+  and **commits that, itself**, with `chore(dashproject)` and no push
+  ([ADR-0014](docs/adr/0014-auditor-fecha-a-propria-arvore.md)). An auditor that
+  leaves files dirty hands its own commit to whatever else commits there.
 - The auditor's own snapshot does not count as evidence of implementation.
 - If the same model just wrote the code, that requirement's confidence drops.
 

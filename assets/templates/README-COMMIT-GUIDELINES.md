@@ -71,7 +71,9 @@ declarado no bloco é que manda.
 - `feat` / `fix` — podem mudar o estado (0 → 50 → 100)
 - `test` / `docs` — evidência extra; não substituem a declaração de estado
 - `refactor` / `chore` — sem mudança de progresso, salvo se declararem um REQ
-- `chore(dashproject)` — reservado ao auditor
+- `chore(dashproject)` — reservado ao auditor: é o assunto com que ele commita o
+  próprio snapshot (`.dashproject/`, sem push). Não use esse prefixo no seu
+  trabalho: ele é ignorado pela auditoria, e o que você declarar ali some
 
 ### Regras
 

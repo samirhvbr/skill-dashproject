@@ -61,7 +61,9 @@ Regras que valem a pena decorar:
 - `feat` / `fix` podem mover 0 → 50 → 100.
 - `test` / `docs` **não** movem o estado; podem promover `declared` → `accepted`.
 - `refactor` / `chore` não mexem em progresso, salvo se declararem um REQ.
-- `chore(dashproject)` é reservado ao auditor — o hook ignora.
+- `chore(dashproject)` é reservado ao auditor — é o assunto com que ele commita o
+  próprio snapshot ao fim do review, e o que o hook ignora
+  ([ADR-0014](adr/0014-auditor-fecha-a-propria-arvore.md)).
 - Prefira ≤3 IDs por commit. Acima de 5 há penalidade de precision.
 
 Referência completa: [`references/commit-protocol.md`](../references/commit-protocol.md).

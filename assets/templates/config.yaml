@@ -16,7 +16,10 @@ analysis:
     release: high
     low_confidence: high
     major_divergence: high
-  auto_commit: false
+  # O review commita o proprio snapshot (`chore(dashproject)`, que o hook ignora) e
+  # devolve a arvore limpa. `false` = snapshot fica sujo de proposito, para revisao
+  # humana antes de entrar na historia.
+  auto_commit: true
   poll_seconds: 30
 
 review_notify: ""

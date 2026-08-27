@@ -32,6 +32,7 @@ Requirements:
 - `feat` / `fix` podem mover 0 → 50 → 100
 - `test` / `docs` não movem o estado; podem promover `declared` → `accepted`
 - `refactor` / `chore` não mexem em progresso, salvo se declararem um REQ
-- `chore(dashproject)` é reservado ao auditor e ignorado pelo hook
+- `chore(dashproject)` é reservado ao auditor: é com esse assunto que ele commita
+  o próprio snapshot, e é o que o hook ignora
 
 Referência: `references/commit-protocol.md`.

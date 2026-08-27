@@ -15,6 +15,8 @@ commit → hook writes pending + timestamp
        → watch (optional) waits debounce_minutes
        → review-due
        → agent runs incremental (never the hook, never the watcher)
+       → commit-snapshot.sh commits .dashproject/ as chore(dashproject)
+       → hook ignores that subject; tree is clean, nothing re-arms
 ```
 
 `scripts/pending-ready.sh` exits 0 when a review is owed.
@@ -33,6 +35,12 @@ On every bootstrap and review, run `collect-activity.py` (git-tracked files only
 
 Regenerate all three outputs from the same snapshot, per
 [dashboard.md](dashboard.md). One Markdown per review — never per commit.
+
+Then close the tree: `.dashproject/commit-snapshot.sh` (see
+[ADR-0014](../docs/adr/0014-auditor-fecha-a-propria-arvore.md)). It commits
+`.dashproject/` and only it, never pushes, and honors `analysis.auto_commit`. Leave
+`pending` / `review-due` removed **before** committing, so the commit carries their
+removal.
 
 ## Watch
 

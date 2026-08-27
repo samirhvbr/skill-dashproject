@@ -4,6 +4,44 @@ Formato [Keep a Changelog](https://keepachangelog.com/pt-BR/1.1.0/).
 Versão canônica em [`version.md`](version.md) — `SKILL.md`, os dois READMEs e o
 nome do pacote derivam dela.
 
+## [0.5.1] — 2026-08-27
+
+O auditor deixava a árvore suja e o commit daquilo saía com o nome de outro — no
+EOP, num loop que se realimentava sozinho.
+
+### Adicionado
+
+- **`scripts/commit-snapshot.sh`: o review commita o próprio snapshot**
+  ([ADR-0014](docs/adr/0014-auditor-fecha-a-propria-arvore.md)). Assunto
+  `chore(dashproject): …` — o mesmo que o hook já ignorava —, pathspec limitado a
+  `.dashproject/` (trabalho em andamento do implementador não entra, e o que ele
+  tinha staged continua staged), **sem push**, corpo sem bloco `Requirements:`.
+  `analysis.auto_commit` passa a `true` no template; `false` é o opt-out, e aí a
+  árvore fica suja **de propósito**, com a razão impressa.
+
+  O loop que motivou isto: o hook `post-commit` escreve `pending` e
+  `last-commit-ts` **depois de cada commit**, então num projeto que versiona
+  `.dashproject/` (o EOP versiona — o trabalho corre em duas estações) a árvore
+  ficava suja no instante seguinte a qualquer commit. A skill COMMITTER, que roda
+  por cron naquele repositório, empacotava esse estado; o commit dela não começava
+  com `chore(dashproject)`, então o hook rearmava, e a volta se repetia a cada
+  disparo — com a máquina parada. Do outro lado, o COMMITTER 0.5.2 ganhou
+  `skip_paths` no marcador. As duas metades são necessárias: `auto_commit` fecha a
+  árvore depois da revisão; `skip_paths` cobre os 10 minutos de debounce e o caso em
+  que a revisão não roda.
+
+### Corrigido
+
+- **`install-git-hook.sh` corrompia o hook no caminho de *refresh*.** O bloco era
+  passado ao `awk` por `-v`, que **processa escape sequences**: o
+  `chore\(dashproject\)*)` do `case` virava `chore(dashproject)*)`, e o hook
+  reescrito morria com erro de sintaxe do bash **a cada commit** — sem registrar
+  `pending`, ou seja, o auditor nunca mais era acionado, em silêncio. Só a segunda
+  instalação em diante era afetada (a primeira usa `printf`). O bloco passa a ir
+  pelo ambiente (`ENVIRON`), e o refresh agora é idempotente byte a byte. Achado
+  rodando o teste de refresh que o próprio `CLAUDE.md` manda rodar — ele nunca
+  tinha sido executado até aqui.
+
 ## [0.5.0] — 2026-08-24
 
 ### Mudado
