@@ -4,6 +4,41 @@ Formato [Keep a Changelog](https://keepachangelog.com/pt-BR/1.1.0/).
 Versão canônica em [`version.md`](version.md) — `SKILL.md`, os dois READMEs e o
 nome do pacote derivam dela.
 
+## 0.5.4 - Releases automaticas: o version.md da master vira tag e Release
+
+O GitHub nao deduz versao de mensagem de commit: sem tag, o numero e string no
+`git log` e `git diff` entre versoes nao existe. Entram o
+`.github/workflows/release.yml` e o `tools/release.sh`.
+
+**A regra:** o `version.md` da branch padrao **no GitHub** e o que as Releases
+**no GitHub** refletem. Checkout local nao entra na conta. Um PR nao publica
+nada; no merge, o push do `version.md` dispara o workflow e a Release vira
+aquela versao.
+
+Tag e titulo = a versao pura, sem prefixo `v`. Norma:
+[samirhvbr/repodocs](https://github.com/samirhvbr/repodocs/blob/master/docs/versioning.md).
+## 0.5.3 - Agent doc: Releases rule and the English-only language rule
+
+Marked echo of the single source at samirhvbr/repodocs. Two rules land here:
+
+1. The `version.md` of the default branch ON GITHUB is what the GitHub Releases
+   show, and a commit that bumps it is not finished until that version has a
+   tag, a Release and the `Latest` badge — same push, not "later".
+2. Everything in this repository is English (US): documents, commit messages,
+   pull requests, issues, code comments. The only carve-out is end-user-facing
+   product strings. History is not rewritten.
+
+Delimited by a marker, so re-running replaces instead of duplicating.
+
+## 0.5.2 - Regra de Releases no doc de agente: bump e Release sao um ato so
+
+Eco marcado da norma unica em samirhvbr/repodocs (docs/versioning.md). O
+`version.md` da branch padrao NO GITHUB e o que as Releases no GitHub mostram, e
+um commit que bumpa o `version.md` nao esta terminado ate aquela versao ter tag,
+Release e o badge `Latest`.
+
+Bloco delimitado por marcador: rodar de novo substitui, nao duplica.
+
 ## [0.5.1] — 2026-08-27
 
 O auditor deixava a árvore suja e o commit daquilo saía com o nome de outro — no
