@@ -4,6 +4,20 @@ Formato [Keep a Changelog](https://keepachangelog.com/pt-BR/1.1.0/).
 Versão canônica em [`version.md`](version.md) — `SKILL.md`, os dois READMEs e o
 nome do pacote derivam dela.
 
+## 0.5.1 - Releases automaticas: o version.md da master vira tag e Release
+
+O GitHub nao deduz versao de mensagem de commit: sem tag, o numero e string no
+`git log` e `git diff` entre versoes nao existe. Entram o
+`.github/workflows/release.yml` e o `tools/release.sh`.
+
+**A regra:** o `version.md` da branch padrao **no GitHub** e o que as Releases
+**no GitHub** refletem. Checkout local nao entra na conta. Um PR nao publica
+nada; no merge, o push do `version.md` dispara o workflow e a Release vira
+aquela versao.
+
+Tag e titulo = a versao pura, sem prefixo `v`. Norma:
+[samirhvbr/repodocs](https://github.com/samirhvbr/repodocs/blob/master/docs/versioning.md).
+
 ## [0.5.0] — 2026-08-24
 
 ### Mudado
