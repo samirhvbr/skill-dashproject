@@ -4,6 +4,21 @@ Formato [Keep a Changelog](https://keepachangelog.com/pt-BR/1.1.0/).
 Versão canônica em [`version.md`](version.md) — `SKILL.md`, os dois READMEs e o
 nome do pacote derivam dela.
 
+## 0.5.5 - COMMIT-RULE: the agent commits, and nothing is finished until it is committed
+
+This repository's agent instructions never said who commits or when. That was
+survivable while the COMMITTER skill was running the cycle; it is not now that
+the skill is off across the fleet (03/09/2026), because nothing downstream
+packages the work any more.
+
+Adds the `COMMIT-RULE` echo block, whose single source is
+[samirhvbr/repodocs `docs/versioning.md`](https://github.com/samirhvbr/repodocs/blob/master/docs/versioning.md#who-commits-and-when)
+(ADR-016 there): the agent commits, nothing is reported as finished until it is
+committed, one subject per commit, and a large delivery is split into blocks
+grouped by subject. The block is delimited and regenerable, so a later
+correction to the rule is one fleet pass rather than an archaeology.
+
+
 ## 0.5.4 - Releases automaticas: o version.md da master vira tag e Release
 
 O GitHub nao deduz versao de mensagem de commit: sem tag, o numero e string no
